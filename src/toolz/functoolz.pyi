@@ -1,3 +1,6 @@
+import collections.abc
+import functools
+import inspect
 import typing
 
 __all__ = (
@@ -83,7 +86,9 @@ def thread_first[T, R](
     """
     ...
 
-def thread_last(val, *forms):  # -> object | None:
+def thread_last[T, U](
+    val: T, *forms: typing.Callable[[T], U] | tuple[typing.Callable[..., U]]
+) -> U:
     """Thread value through a sequence of functions/forms
 
     >>> def double(x): return 2*x
@@ -187,6 +192,8 @@ def instanceproperty(
     """
     ...
 
+_CurryState = tuple
+
 class curry[T]:
     """Curry a callable function
 
@@ -215,43 +222,45 @@ class curry[T]:
         toolz.curried - namespace of curried functions
                         https://toolz.readthedocs.io/en/latest/curry.html
     """
-    def __init__(self, *args, **kwargs) -> None: ...
+    def __init__(
+        self,
+        func: curry[T] | functools.partial[T] | typing.Callable[..., T],
+        /,  # Must be positional-only
+        *args: typing.Any,
+        **kwargs: typing.Any,
+    ) -> None: ...
     @instanceproperty
-    def func(self):  # -> Callable[..., object]:
-        ...
+    def func(self) -> typing.Callable[..., T]: ...
     @instanceproperty
-    def __signature__(self):  # -> Signature:
-        ...
+    def __signature__(self) -> inspect.Signature: ...
     @instanceproperty
-    def args(self):  # -> tuple[Any, ...]:
-        ...
+    def args(self) -> tuple[typing.Any, ...]: ...
     @instanceproperty
-    def keywords(self):  # -> dict[str, Any]:
-        ...
+    def keywords(self) -> dict[str, typing.Any]: ...
     @instanceproperty
-    def func_name(self):  # -> Any | str:
-        ...
+    def func_name(self) -> str: ...
     def __str__(self) -> str: ...
-    def __repr__(self):  # -> str:
-        ...
+    def __repr__(self) -> str: ...
     def __hash__(self) -> int: ...
-    def __eq__(self, other) -> bool: ...
-    def __ne__(self, other) -> bool: ...
-    def __call__(self, *args, **kwargs):  # -> object | Self:
-        ...
-    def bind(self, *args, **kwargs):  # -> Self:
-        ...
-    def call(self, *args, **kwargs):  # -> object:
-        ...
-    def __get__(self, instance, owner):  # -> Self | curry:
-        ...
+    def __eq__(self, other: object) -> bool: ...
+    def __ne__(self, other: object) -> bool: ...
+    def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> T | curry[T]: ...
+    def bind(self, *args: typing.Any, **kwargs: typing.Any) -> curry[T]: ...
+    def call(self, *args: typing.Any, **kwargs: typing.Any) -> T: ...
+    def __get__(self, instance: object, owner: type) -> curry[T]: ...
     def __reduce__(
         self,
-    ):  # -> tuple[Callable[..., ModuleType | Any], tuple[type[Self], str | Callable[[], Callable[..., object]], Callable[[], tuple[Any, ...]], Callable[[], dict[str, Any]], tuple[tuple[str, Any], ...], bool | None]]:
-        ...
+    ) -> tuple[typing.Callable[..., T], _CurryState]: ...
 
 @curry
-def memoize(func, cache=..., key=...):  # -> Callable[..., Any]:
+def memoize[T](
+    func: typing.Callable[..., T],
+    cache: dict[typing.Any, T] | None = None,
+    key: typing.Callable[
+        [tuple[typing.Any, ...], collections.abc.Mapping[str, typing.Any]], typing.Any
+    ]
+    | None = None,
+) -> typing.Callable[..., T]:
     """Cache a function's result for speedy future evaluation
 
     Considerations:
@@ -369,7 +378,52 @@ def compose_left(
     """
     ...
 
-def pipe(data, *funcs):
+@typing.overload
+def pipe[**P, T](
+    data: T,
+    fn_0: typing.Callable[P, T],
+) -> T: ...
+@typing.overload
+def pipe[**P, T0, T1](
+    data: T0,
+    fn_0: typing.Callable[P, T0],
+    fn_1: typing.Callable[[T0], T1],
+) -> T1: ...
+@typing.overload
+def pipe[**P, T0, T1, T2](
+    data: T0,
+    fn_0: typing.Callable[P, T0],
+    fn_1: typing.Callable[[T0], T1],
+    fn_2: typing.Callable[[T1], T2],
+) -> T2: ...
+@typing.overload
+def pipe[**P, T0, T1, T2, T3](
+    data: T0,
+    fn_0: typing.Callable[P, T0],
+    fn_1: typing.Callable[[T0], T1],
+    fn_2: typing.Callable[[T1], T2],
+    fn_3: typing.Callable[[T2], T3],
+) -> T3: ...
+@typing.overload
+def pipe[**P, T0, T1, T2, T3, T4](
+    data: T0,
+    fn_0: typing.Callable[P, T0],
+    fn_1: typing.Callable[[T0], T1],
+    fn_2: typing.Callable[[T1], T2],
+    fn_3: typing.Callable[[T2], T3],
+    fn_4: typing.Callable[[T3], T4],
+) -> T4: ...
+@typing.overload
+def pipe[**P, T0, T1, T2, T3, T4, T5](
+    data: T0,
+    fn_0: typing.Callable[P, T0],
+    fn_1: typing.Callable[[T0], T1],
+    fn_2: typing.Callable[[T1], T2],
+    fn_3: typing.Callable[[T2], T3],
+    fn_4: typing.Callable[[T3], T4],
+    fn_5: typing.Callable[[T4], T5],
+) -> T5: ...
+def pipe(data: typing.Any, *funcs: typing.Callable[..., typing.Any]) -> typing.Any:
     """Pipe a value through a sequence of functions
 
     I.e. ``pipe(data, f, g, h)`` is equivalent to ``h(g(f(data)))``
@@ -391,7 +445,7 @@ def pipe(data, *funcs):
     """
     ...
 
-def complement(func):  # -> Callable[..., Any] | Compose:
+def complement[**P](func: typing.Callable[P, bool]) -> typing.Callable[P, bool]:
     """Convert a predicate function to its logical complement.
 
     In other words, return a function that, for inputs that normally
@@ -406,7 +460,7 @@ def complement(func):  # -> Callable[..., Any] | Compose:
     """
     ...
 
-class juxt:
+class juxt[**P, T]:
     """Creates a function that calls several functions with the same arguments
 
     Takes several functions and returns a function that applies its arguments
@@ -423,16 +477,12 @@ class juxt:
     (11, 20)
     """
 
-    __slots__ = ...
-    def __init__(self, *funcs) -> None: ...
-    def __call__(self, *args, **kwargs):  # -> tuple[Any, ...]:
-        ...
-    def __getstate__(self):  # -> tuple[Any, ...]:
-        ...
-    def __setstate__(self, state):  # -> None:
-        ...
+    def __init__(self, *funcs: typing.Callable[P, T]) -> None: ...
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> tuple[T, ...]: ...
+    def __getstate__(self) -> tuple[typing.Callable[P, T], ...]: ...
+    def __setstate__(self, state: tuple[typing.Callable[P, T], ...]) -> None: ...
 
-def do(func, x):
+def do[T](func: typing.Callable[[T], typing.Any], x: T) -> T:
     """Runs ``func`` on ``x``, returns ``x``
 
     Because the results of ``func`` are not returned, only the side
@@ -457,7 +507,7 @@ def do(func, x):
     ...
 
 @curry
-def flip(func, a, b):
+def flip[T, U, R](func: typing.Callable[[T, U], R], a: U, b: T) -> R:
     """Call the function call with the arguments flipped
 
     This function is curried.
