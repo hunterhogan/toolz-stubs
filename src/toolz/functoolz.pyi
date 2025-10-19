@@ -289,40 +289,9 @@ def memoize(func, cache=..., key=...):  # -> Callable[..., Any]:
     """
     ...
 
-class Compose:
-    """A composition of functions
-
-    See Also:
-        compose
-    """
-
-    __slots__ = ...
-    def __init__(self, funcs) -> None: ...
-    def __call__(self, *args, **kwargs): ...
-    def __getstate__(self):  # -> tuple[Any, tuple[Any, ...] | Any]:
-        ...
-    def __setstate__(self, state):  # -> None:
-        ...
-    @instanceproperty(classval=__doc__)
-    def __doc__(self):  # -> str:
-        ...
-    @property
-    def __name__(self):  # -> LiteralString | property:
-        ...
-    def __repr__(self):  # -> str:
-        ...
-    def __eq__(self, other) -> bool: ...
-    def __ne__(self, other) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __get__(self, obj, objtype=...):  # -> Self | MethodType:
-        ...
-    @instanceproperty
-    def __signature__(self):  # -> Signature:
-        ...
-
-    __wrapped__ = ...
-
-def compose(*funcs):  # -> Callable[..., Any] | Compose:
+def compose(
+    *funcs: typing.Callable[..., typing.Any],
+) -> typing.Callable[..., typing.Any]:
     """Compose functions to operate in series.
 
     Returns a function that applies other functions in sequence.
@@ -342,7 +311,45 @@ def compose(*funcs):  # -> Callable[..., Any] | Compose:
     """
     ...
 
-def compose_left(*funcs):  # -> Callable[..., Any] | Compose:
+@typing.overload
+def compose_left[**P, T](fn_0: typing.Callable[P, T]) -> typing.Callable[P, T]: ...
+@typing.overload
+def compose_left[**P, T0, T1](
+    fn_0: typing.Callable[P, T0], fn_1: typing.Callable[[T0], T1]
+) -> typing.Callable[P, T1]: ...
+@typing.overload
+def compose_left[**P, T0, T1, T2](
+    fn_0: typing.Callable[P, T0],
+    fn_1: typing.Callable[[T0], T1],
+    fn_2: typing.Callable[[T1], T2],
+) -> typing.Callable[P, T2]: ...
+@typing.overload
+def compose_left[**P, T0, T1, T2, T3](
+    fn_0: typing.Callable[P, T0],
+    fn_1: typing.Callable[[T0], T1],
+    fn_2: typing.Callable[[T1], T2],
+    fn_3: typing.Callable[[T2], T3],
+) -> typing.Callable[P, T3]: ...
+@typing.overload
+def compose_left[**P, T0, T1, T2, T3, T4](
+    fn_0: typing.Callable[P, T0],
+    fn_1: typing.Callable[[T0], T1],
+    fn_2: typing.Callable[[T1], T2],
+    fn_3: typing.Callable[[T2], T3],
+    fn_4: typing.Callable[[T3], T4],
+) -> typing.Callable[P, T4]: ...
+@typing.overload
+def compose_left[**P, T0, T1, T2, T3, T4, T5](
+    fn_0: typing.Callable[P, T0],
+    fn_1: typing.Callable[[T0], T1],
+    fn_2: typing.Callable[[T1], T2],
+    fn_3: typing.Callable[[T2], T3],
+    fn_4: typing.Callable[[T3], T4],
+    fn_5: typing.Callable[[T4], T5],
+) -> typing.Callable[P, T5]: ...
+def compose_left(
+    *funcs: typing.Callable[..., typing.Any],
+) -> typing.Callable[..., typing.Any]:
     """Compose functions to operate in series.
 
     Returns a function that applies other functions in sequence.
@@ -475,11 +482,7 @@ def flip(func, a, b):
     """
     ...
 
-def return_none(exc):  # -> None:
-    """Returns None."""
-    ...
-
-class excepts:
+class excepts[T, **P]:
     """A wrapper around a function to catch exceptions and
     dispatch to a handler.
 
@@ -508,41 +511,12 @@ class excepts:
     >>> excepting({0: 1})
     1
     """
-    def __init__(self, exc, func, handler=...) -> None: ...
-    def __call__(self, *args, **kwargs): ...
-    @instanceproperty(classval=__doc__)
-    def __doc__(self):  # -> str | Callable[..., str | Callable[..., ...]]:
-        ...
+    def __init__(
+        self,
+        exc: type[Exception] | tuple[type[Exception], ...],
+        func: typing.Callable[P, T],
+        handler: typing.Callable[[Exception], T] | None = None,
+    ) -> None: ...
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T: ...
     @property
-    def __name__(self):  # -> str:
-        ...
-
-if PYPY:
-    _check_sigspec_orig = ...
-
-def num_required_args(func, sigspec=...):  # -> int | Literal[False] | None:
-    ...
-def has_varargs(func, sigspec=...):  # -> bool | None:
-    ...
-def has_keywords(func, sigspec=...):  # -> bool | None:
-    ...
-def is_valid_args(func, args, kwargs, sigspec=...):  # -> bool | None:
-    ...
-def is_partial_args(func, args, kwargs, sigspec=...):  # -> bool | None:
-    ...
-def is_arity(n, func, sigspec=...):  # -> bool | None:
-    """Does a function have only n positional arguments?
-
-    This function relies on introspection and does not call the function.
-    Returns None if validity can't be determined.
-
-    >>> def f(x):
-    ...     return x
-    >>> is_arity(1, f)
-    True
-    >>> def g(x, y=1):
-    ...     return x + y
-    >>> is_arity(1, g)
-    False
-    """
-    ...
+    def __name__(self) -> str: ...
