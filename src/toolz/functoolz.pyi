@@ -1,4 +1,5 @@
-PYPY = bool
+import typing
+
 __all__ = (
     "identity",
     "apply",
@@ -15,6 +16,23 @@ __all__ = (
     "flip",
     "excepts",
 )
+PYPY = bool
+
+### Internal type stubs
+_T = typing.TypeVar("_T")
+_Instance = typing.TypeVar("_Instance")
+_Getter = typing.Callable[[_Instance], _T]
+_Setter = typing.Callable[[_Instance, _T], None]
+_Deleter = typing.Callable[[_Instance], None]
+_InstancePropertyState = tuple[
+    _Getter[_Instance, _T] | None,
+    _Setter[_Instance, _T] | None,
+    _Deleter[_Instance] | None,
+    str | None,
+    _T | None,
+]
+
+### Toolz
 
 def identity[T](x: T) -> T:
     """Identity function. Return x
@@ -24,7 +42,7 @@ def identity[T](x: T) -> T:
     """
     ...
 
-def apply(*func_and_args, **kwargs):
+def apply[**P, T](func: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
     """Applies a function and returns the results
 
     >>> def double(x): return 2*x
@@ -37,7 +55,9 @@ def apply(*func_and_args, **kwargs):
     """
     ...
 
-def thread_first(val, *forms):  # -> object | None:
+def thread_first[T, R](
+    val: T, *forms: typing.Callable[[T], R] | tuple[typing.Callable[..., R], typing.Any]
+) -> R:
     """Thread value through a sequence of functions/forms
 
     >>> def double(x): return 2*x
@@ -94,9 +114,56 @@ def thread_last(val, *forms):  # -> object | None:
     """
     ...
 
+class InstanceProperty[_Instance, _T](property):
+    """Like @property, but returns ``classval`` when used as a class attribute
+
+    Should not be used directly.  Use ``instanceproperty`` instead.
+    """
+    def __init__(
+        self,
+        fget: _Getter[_Instance, _T] | None = None,
+        fset: _Setter[_Instance, _T] | None = None,
+        fdel: _Deleter[_Instance] | None = None,
+        doc: str | None = None,
+        classval: _T | None = None,
+    ) -> None: ...
+    @typing.overload
+    def __get__(self, obj: None, type: type | None = ...) -> _T | None: ...
+    @typing.overload
+    def __get__(self, obj: _Instance, type: type | None = ...) -> _T: ...
+    def __get__(self, obj: _Instance | None, type: type | None = None) -> _T | None: ...
+    def __reduce__(
+        self,
+    ) -> tuple[type[InstanceProperty], _InstancePropertyState]:  # pyright: ignore[reportMissingTypeArgument]
+        # TODO figure out how to type this correctly
+        ...
+
+@typing.overload
 def instanceproperty(
-    fget=..., fset=..., fdel=..., doc=..., classval=...
-):  # -> partial[Any] | InstanceProperty:
+    fget: _Getter[_Instance, _T],
+    fset: _Setter[_Instance, _T] | None = ...,
+    fdel: _Deleter[_Instance] | None = ...,
+    doc: str | None = ...,
+    classval: _T | None = ...,
+) -> InstanceProperty[_Instance, _T]: ...
+@typing.overload
+def instanceproperty(
+    fget: typing.Literal[None] | None = None,
+    fset: _Setter[_Instance, _T] | None = ...,  # pyright: ignore[reportInvalidTypeVarUse]
+    fdel: _Deleter[_Instance] | None = ...,
+    doc: str | None = ...,
+    classval: _T | None = ...,
+) -> typing.Callable[[_Getter[_Instance, _T]], InstanceProperty[_Instance, _T]]: ...
+def instanceproperty(
+    fget: _Getter[_Instance, _T] | None = None,
+    fset: _Setter[_Instance, _T] | None = None,
+    fdel: _Deleter[_Instance] | None = None,
+    doc: str | None = None,
+    classval: _T | None = None,
+) -> (
+    InstanceProperty[_Instance, _T]
+    | typing.Callable[[_Getter[_Instance, _T]], InstanceProperty[_Instance, _T]]
+):
     """Like @property, but returns ``classval`` when used as a class attribute
 
     >>> class MyClass(object):
@@ -120,20 +187,7 @@ def instanceproperty(
     """
     ...
 
-class InstanceProperty(property):
-    """Like @property, but returns ``classval`` when used as a class attribute
-
-    Should not be used directly.  Use ``instanceproperty`` instead.
-    """
-    def __init__(self, fget=..., fset=..., fdel=..., doc=..., classval=...) -> None: ...
-    def __get__(self, obj, type=...):  # -> Any | None:
-        ...
-    def __reduce__(
-        self,
-    ):  # -> tuple[type[InstanceProperty], tuple[Callable[[Any], Any] | None, Callable[[Any, Any], None] | None, Callable[[Any], None] | None, str | None, Any | None]]:
-        ...
-
-class curry:
+class curry[T]:
     """Curry a callable function
 
     Enables partial application of arguments through calling a function with an
