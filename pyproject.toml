@@ -24,6 +24,13 @@ dev = [
     "cytoolz~=1.0",
 ]
 
+[tool.ruff.lint.isort]
+# In __init__.pyi, without these rules, every import becomes its own line.
+# 1. Combine multiple imports from the same module into a single line
+# 2. Keep imports split across multiple lines if they don't fit
+combine-as-imports = true
+split-on-trailing-comma = false
+
 [tool.basedpyright]
 typeCheckingMode = "strict"
 pythonVersion = "3.12"

@@ -356,6 +356,10 @@ def compose_left[**P, T0, T1, T2, T3, T4, T5](
     fn_4: typing.Callable[[T3], T4],
     fn_5: typing.Callable[[T4], T5],
 ) -> typing.Callable[P, T5]: ...
+@typing.overload
+def compose_left(
+    *funcs: typing.Callable[..., typing.Any],
+) -> typing.Callable[..., typing.Any]: ...
 def compose_left(
     *funcs: typing.Callable[..., typing.Any],
 ) -> typing.Callable[..., typing.Any]:
@@ -423,6 +427,8 @@ def pipe[**P, T0, T1, T2, T3, T4, T5](
     fn_4: typing.Callable[[T3], T4],
     fn_5: typing.Callable[[T4], T5],
 ) -> T5: ...
+@typing.overload
+def pipe(data: typing.Any, *funcs: typing.Callable[..., typing.Any]) -> typing.Any: ...
 def pipe(data: typing.Any, *funcs: typing.Callable[..., typing.Any]) -> typing.Any:
     """Pipe a value through a sequence of functions
 

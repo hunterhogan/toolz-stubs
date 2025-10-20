@@ -1,4 +1,5 @@
 """Test that our stubs are found by type checkers."""
+
 import toolz
 import tlz
 
@@ -10,10 +11,12 @@ result2 = tlz.identity("hello")
 composed = toolz.compose(str.upper, str.strip)
 text = composed("  hello  ")
 
+
 # Test curry
 @toolz.curry
 def add(x, y):
     return x + y
+
 
 add_five = add(5)
 result3 = add_five(3)

@@ -550,6 +550,10 @@ def sliding_window[T](
 no_pad = "__no_pad__"
 
 @typing.overload
+def partition[T, P](
+    n: typing.Literal[1], seq: collections.abc.Iterable[T], pad: typing.Any = ...
+) -> collections.abc.Iterator[tuple[T]]: ...
+@typing.overload
 def partition[T](
     n: int, seq: collections.abc.Iterable[T], pad: _NoPadType = ...
 ) -> collections.abc.Iterator[tuple[T, ...]]: ...
@@ -579,6 +583,14 @@ def partition[T, P](
     """
     ...
 
+@typing.overload
+def partition_all[T](
+    n: typing.Literal[1], seq: collections.abc.Iterable[T]
+) -> collections.abc.Iterator[tuple[T]]: ...
+@typing.overload
+def partition_all[T](
+    n: int, seq: collections.abc.Iterable[T]
+) -> collections.abc.Iterator[tuple[T, ...]]: ...
 def partition_all[T](
     n: int, seq: collections.abc.Iterable[T]
 ) -> collections.abc.Iterator[tuple[T, ...]]:
