@@ -1,7 +1,8 @@
 """Test that our stubs are found by type checkers."""
 
-import toolz
 import tlz
+
+import toolz
 
 # Test basic function
 result1 = toolz.identity(42)
@@ -14,7 +15,7 @@ text = composed("  hello  ")
 
 # Test curry
 @toolz.curry
-def add(x, y):
+def add(x: int, y: int) -> int:
     return x + y
 
 
@@ -23,7 +24,7 @@ result3 = add_five(3)
 
 # These should reveal the types if stubs are working
 # (pyright will show these in output)
-reveal_type(result1)  # type: ignore
-reveal_type(result2)  # type: ignore
-reveal_type(composed)  # type: ignore
-reveal_type(add_five)  # type: ignore
+reveal_type(result1)
+reveal_type(result2)
+reveal_type(composed)
+reveal_type(add_five)

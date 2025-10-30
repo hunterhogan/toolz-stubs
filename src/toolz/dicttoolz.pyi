@@ -1,3 +1,4 @@
+# pyright: reportAny=false
 import collections.abc
 import typing
 

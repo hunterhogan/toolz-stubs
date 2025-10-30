@@ -1,3 +1,4 @@
+# pyright: reportAny=false
 import collections.abc
 import typing
 
@@ -380,7 +381,7 @@ def concatv[T](*seqs: collections.abc.Iterable[T]) -> collections.abc.Iterator[T
     ...
 
 def mapcat[T, R](
-    func: typing.Callable[[T], R],
+    func: typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterable[R]],
     seqs: collections.abc.Iterable[collections.abc.Iterable[T]],
 ) -> collections.abc.Iterator[R]:
     """Apply func to each sequence in seqs, concatenating results.

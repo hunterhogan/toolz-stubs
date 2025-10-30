@@ -1,13 +1,20 @@
 # toolz-stubs
 
-Type stubs for [toolz](https://github.com/pytoolz/toolz), [cytoolz](https://github.com/pytoolz/cytoolz), and [tlz](https://github.com/pytoolz/toolz/tree/main/tlz) - Python functional programming libraries.
+Type stubs for [toolz](https://github.com/pytoolz/toolz), and [tlz](https://github.com/pytoolz/toolz/tree/main/tlz) - Python functional programming libraries.
+
+Type hinting for [cytoolz](https://github.com/pytoolz/cytoolz) is available via [tlz](https://github.com/pytoolz/toolz/tree/main/tlz).
 
 ## What This Package Provides
 
 This package provides type stubs (`.pyi` files) for:
 - **toolz**: The pure Python functional programming library
-- **cytoolz**: The Cython-accelerated version with identical API
-- **tlz**: The auto-selecting wrapper that uses cytoolz (if available) or falls back to toolz
+- **tlz**: The auto-selecting wrapper that uses the cython-accelerated cytoolz (if available) or falls back to toolz
+
+## Structure
+
+* `src`: Contains the source code for the stubs.
+* `tests`: Contains test files for stubs.
+* `type_tests`: Contains python files for basedpyright to execute and verify typing of.
 
 ## Design Approach: Partial Stubs
 
@@ -21,11 +28,6 @@ site-packages/
     __init__.pyi      # Our stub files
     functoolz.pyi
     itertoolz.pyi
-    ...
-    py.typed          # Marker for partial stubs
-  cytoolz/
-    __init__.py       # Original cytoolz files
-    __init__.pyi      # Our stub files (identical to toolz)
     ...
     py.typed          # Marker for partial stubs
   tlz/
