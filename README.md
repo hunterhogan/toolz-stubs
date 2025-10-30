@@ -82,22 +82,13 @@ By installing partial stubs directly into the package directories, we ensure typ
 - Complex build process
 - Still conflicts with existing `cytoolz-stubs`
 
-## Why We Include cytoolz
-
-While there's a `cytoolz-stubs` package on PyPI, it hasn't been updated in 6 years (last update in 2018). Rather than leave cytoolz users with outdated type information, we provide modern, maintained stubs for all three packages:
-- **toolz**: The pure Python implementation
-- **cytoolz**: The Cython-accelerated version
-- **tlz**: The auto-selecting wrapper
-
-Since all three have identical APIs, we maintain a single source of truth for the type definitions.
-
 ## Installation
 
 ```bash
 pip install toolz-stubs
 ```
 
-This will install type stubs for `toolz`, `cytoolz`, and `tlz`.
+This will install type stubs for `toolz` and `tlz`.
 
 ## Usage
 
@@ -133,8 +124,6 @@ toolz-stubs/
       py.typed
       curried/
         __init__.pyi
-    cytoolz/        # Identical stubs for cytoolz
-      ...
     tlz/            # Identical stubs for tlz
       ...
   pyproject.toml
