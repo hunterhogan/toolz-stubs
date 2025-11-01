@@ -267,7 +267,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "toolz", specifier = "~=1.0" },
-    { name = "typing-extensions", specifier = ">=4.15.0" },
+    { name = "typing-extensions", specifier = ">=4.10.0" },
 ]
 
 [package.metadata.requires-dev]

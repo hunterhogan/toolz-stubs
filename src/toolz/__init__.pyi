@@ -4,10 +4,10 @@ from functools import partial as partial, reduce as reduce
 
 # Re-export all public APIs from submodules
 # Submodules
-from toolz import curried as curried, sandbox as sandbox
+from . import curried as curried, sandbox as sandbox
 
 # Specific functions
-from toolz.dicttoolz import (
+from .dicttoolz import (
     assoc as assoc,
     assoc_in as assoc_in,
     dissoc as dissoc,
@@ -22,7 +22,7 @@ from toolz.dicttoolz import (
     valfilter as valfilter,
     valmap as valmap,
 )
-from toolz.functoolz import (
+from .functoolz import (
     apply as apply,
     complement as complement,
     compose as compose,
@@ -38,7 +38,7 @@ from toolz.functoolz import (
     thread_first as thread_first,
     thread_last as thread_last,
 )
-from toolz.itertoolz import (
+from .itertoolz import (
     accumulate as accumulate,
     concat as concat,
     concatv as concatv,
@@ -78,7 +78,7 @@ from toolz.itertoolz import (
     topk as topk,
     unique as unique,
 )
-from toolz.recipes import countby as countby, partitionby as partitionby
+from .recipes import countby as countby, partitionby as partitionby
 
 # Aliases
 comp = compose
