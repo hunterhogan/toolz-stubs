@@ -5,109 +5,169 @@ Binary and n-ary operators are curried to support partial application.
 Unary operators are not curried (since they only take one argument).
 
 From a typing perspective, curried functions have identical signatures
-to their uncurried versions, so we simply re-export from operator.
+to their uncurried versions, so we use toolz.curry to wrap them.
+
+Dunder operators (__add__, __mul__, etc.) are aliased to their non-dunder
+equivalents (add, mul, etc.) following typeshed's pattern. This reduces
+duplication and makes it easier to add overloads in the future.
 """
 
+import operator
+
+# Unary operators and special cases - not curried (from IGNORE set in operator.py)
 from operator import (
     __abs__ as __abs__,
-    __add__ as __add__,
-    __and__ as __and__,
-    __call__ as __call__,
-    __concat__ as __concat__,
-    __contains__ as __contains__,
-    __delitem__ as __delitem__,
-    __eq__ as __eq__,
-    __floordiv__ as __floordiv__,
-    __ge__ as __ge__,
-    __getitem__ as __getitem__,
-    __gt__ as __gt__,
-    __iadd__ as __iadd__,
-    __iand__ as __iand__,
-    __iconcat__ as __iconcat__,
-    __ifloordiv__ as __ifloordiv__,
-    __ilshift__ as __ilshift__,
-    __imatmul__ as __imatmul__,
-    __imod__ as __imod__,
-    __imul__ as __imul__,
     __index__ as __index__,
     __inv__ as __inv__,
     __invert__ as __invert__,
-    __ior__ as __ior__,
-    __ipow__ as __ipow__,
-    __irshift__ as __irshift__,
-    __isub__ as __isub__,
-    __itruediv__ as __itruediv__,
-    __ixor__ as __ixor__,
-    __le__ as __le__,
-    __lshift__ as __lshift__,
-    __lt__ as __lt__,
-    __matmul__ as __matmul__,
-    __mod__ as __mod__,
-    __mul__ as __mul__,
-    __ne__ as __ne__,
     __neg__ as __neg__,
     __not__ as __not__,
-    __or__ as __or__,
     __pos__ as __pos__,
-    __pow__ as __pow__,
-    __rshift__ as __rshift__,
-    __setitem__ as __setitem__,
-    __sub__ as __sub__,
-    __truediv__ as __truediv__,
-    __xor__ as __xor__,
     abs as abs,
-    add as add,
-    and_ as and_,
     attrgetter as attrgetter,
-    call as call,
-    concat as concat,
-    contains as contains,
-    countOf as countOf,
-    delitem as delitem,
-    eq as eq,
-    floordiv as floordiv,
-    ge as ge,
-    getitem as getitem,
-    gt as gt,
-    iadd as iadd,
-    iand as iand,
-    iconcat as iconcat,
-    ifloordiv as ifloordiv,
-    ilshift as ilshift,
-    imatmul as imatmul,
-    imod as imod,
-    imul as imul,
     index as index,
-    indexOf as indexOf,
     inv as inv,
     invert as invert,
-    ior as ior,
-    ipow as ipow,
-    irshift as irshift,
-    is_ as is_,
-    is_not as is_not,
-    isub as isub,
     itemgetter as itemgetter,
-    itruediv as itruediv,
-    ixor as ixor,
-    le as le,
-    length_hint as length_hint,
-    lshift as lshift,
-    lt as lt,
-    matmul as matmul,
-    methodcaller as methodcaller,
-    mod as mod,
-    mul as mul,
-    ne as ne,
     neg as neg,
     not_ as not_,
-    or_ as or_,
     pos as pos,
-    pow as pow,
-    rshift as rshift,
-    setitem as setitem,
-    sub as sub,
-    truediv as truediv,
     truth as truth,
-    xor as xor,
 )
+
+from toolz.functoolz import curry
+
+# Binary and n-ary operators - curried
+# Define non-dunder versions (canonical), then alias dunder versions
+
+# Arithmetic operators
+add = curry(operator.add)
+__add__ = add
+
+sub = curry(operator.sub)
+__sub__ = sub
+
+mul = curry(operator.mul)
+__mul__ = mul
+
+truediv = curry(operator.truediv)
+__truediv__ = truediv
+
+floordiv = curry(operator.floordiv)
+__floordiv__ = floordiv
+
+mod = curry(operator.mod)
+__mod__ = mod
+
+pow = curry(operator.pow)
+__pow__ = pow
+
+matmul = curry(operator.matmul)
+__matmul__ = matmul
+
+# Bitwise operators
+and_ = curry(operator.and_)
+__and__ = and_
+
+or_ = curry(operator.or_)
+__or__ = or_
+
+xor = curry(operator.xor)
+__xor__ = xor
+
+lshift = curry(operator.lshift)
+__lshift__ = lshift
+
+rshift = curry(operator.rshift)
+__rshift__ = rshift
+
+# Comparison operators
+eq = curry(operator.eq)
+__eq__ = eq
+
+ne = curry(operator.ne)
+__ne__ = ne
+
+lt = curry(operator.lt)
+__lt__ = lt
+
+le = curry(operator.le)
+__le__ = le
+
+gt = curry(operator.gt)
+__gt__ = gt
+
+ge = curry(operator.ge)
+__ge__ = ge
+
+# In-place operators
+iadd = curry(operator.iadd)
+__iadd__ = iadd
+
+isub = curry(operator.isub)
+__isub__ = isub
+
+imul = curry(operator.imul)
+__imul__ = imul
+
+itruediv = curry(operator.itruediv)
+__itruediv__ = itruediv
+
+ifloordiv = curry(operator.ifloordiv)
+__ifloordiv__ = ifloordiv
+
+imod = curry(operator.imod)
+__imod__ = imod
+
+ipow = curry(operator.ipow)
+__ipow__ = ipow
+
+imatmul = curry(operator.imatmul)
+__imatmul__ = imatmul
+
+iand = curry(operator.iand)
+__iand__ = iand
+
+ior = curry(operator.ior)
+__ior__ = ior
+
+ixor = curry(operator.ixor)
+__ixor__ = ixor
+
+ilshift = curry(operator.ilshift)
+__ilshift__ = ilshift
+
+irshift = curry(operator.irshift)
+__irshift__ = irshift
+
+# Sequence/container operators
+concat = curry(operator.concat)
+__concat__ = concat
+
+iconcat = curry(operator.iconcat)
+__iconcat__ = iconcat
+
+contains = curry(operator.contains)
+__contains__ = contains
+
+getitem = curry(operator.getitem)
+__getitem__ = getitem
+
+setitem = curry(operator.setitem)
+__setitem__ = setitem
+
+delitem = curry(operator.delitem)
+__delitem__ = delitem
+
+# Other binary operators
+is_ = curry(operator.is_)
+is_not = curry(operator.is_not)
+
+call = curry(operator.call)
+__call__ = call
+
+# Utility functions
+countOf = curry(operator.countOf)
+indexOf = curry(operator.indexOf)
+length_hint = curry(operator.length_hint)
+methodcaller = curry(operator.methodcaller)

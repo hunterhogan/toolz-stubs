@@ -8,32 +8,32 @@ from typing_extensions import TypeIs
 
 import toolz
 from toolz import (
-    apply,
-    comp,
-    complement,
-    compose,
-    compose_left,
-    concat,
-    concatv,
-    count,
-    curry,
-    diff,
-    first,
-    flip,
-    frequencies,
-    identity,
-    interleave,
-    isdistinct,
-    isiterable,
-    juxt,
-    last,
-    memoize,
-    merge_sorted,
-    peek,
-    pipe,
-    second,
-    thread_first,
-    thread_last,
+    apply as apply,
+    comp as comp,
+    complement as complement,
+    compose as compose,
+    compose_left as compose_left,
+    concat as concat,
+    concatv as concatv,
+    count as count,
+    curry as curry,
+    diff as diff,
+    first as first,
+    flip as flip,
+    frequencies as frequencies,
+    identity as identity,
+    interleave as interleave,
+    isdistinct as isdistinct,
+    isiterable as isiterable,
+    juxt as juxt,
+    last as last,
+    memoize as memoize,
+    merge_sorted as merge_sorted,
+    peek as peek,
+    pipe as pipe,
+    second as second,
+    thread_first as thread_first,
+    thread_last as thread_last,
 )
 
 # All functions from operator module are re-exported here.
@@ -42,8 +42,155 @@ from toolz import (
 from . import operator
 from .exceptions import merge, merge_with
 
-accumulate = toolz.curry(toolz.accumulate)
-assoc = toolz.curry(toolz.assoc)  # high priority
+class _Comparable(typing.Protocol):
+    def __lt__(self, other: _Comparable) -> bool: ...
+
+# Curried accumulate with explicit overloads for type safety
+# Stage 0: No arguments - returns a callable
+@typing.overload
+def accumulate[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
+
+# Stage 1: Just binop - returns callable waiting for seq (and optional initial)
+@typing.overload
+def accumulate[T](
+    binop: typing.Callable[[T, T], T], /
+) -> typing.Callable[..., collections.abc.Iterator[T]]: ...
+
+# Stage 2a: binop + seq (no initial) - executes immediately
+@typing.overload
+def accumulate[T](
+    binop: typing.Callable[[T, T], T], seq: collections.abc.Iterable[T], /
+) -> collections.abc.Iterator[T]: ...
+
+# Stage 2b: binop + seq + initial - executes immediately
+@typing.overload
+def accumulate[T](
+    binop: typing.Callable[[T, T], T],
+    seq: collections.abc.Iterable[T],
+    initial: T,
+    /,
+) -> collections.abc.Iterator[T]: ...
+def accumulate[T](
+    binop: typing.Callable[[T, T], T] = ...,
+    seq: collections.abc.Iterable[T] = ...,
+    initial: T = ...,
+) -> collections.abc.Iterator[T] | typing.Callable[..., collections.abc.Iterator[T]]:
+    """Curried version of accumulate
+
+    Repeatedly apply binary function to a sequence, accumulating results.
+
+    >>> from toolz.curried import accumulate
+    >>> from operator import add, mul
+    >>> list(accumulate(add, [1, 2, 3, 4, 5]))
+    [1, 3, 6, 10, 15]
+    >>> list(accumulate(mul, [1, 2, 3, 4, 5]))
+    [1, 2, 6, 24, 120]
+
+    Can be partially applied:
+    >>> cumsum = accumulate(add)
+    >>> list(cumsum([1, 2, 3, 4, 5]))
+    [1, 3, 6, 10, 15]
+
+    With initial value:
+    >>> list(accumulate(add, [1, 2, 3], -1))
+    [-1, 0, 2, 5]
+    >>> list(accumulate(add, [], 1))
+    [1]
+
+    Common pattern for cumulative operations:
+    >>> from toolz.curried import pipe
+    >>> from operator import mul
+    >>> cumprod = accumulate(mul)
+    >>> list(pipe([1, 2, 3, 4], cumprod))
+    [1, 2, 6, 24]
+
+    See Also:
+        reduce
+        itertools.accumulate
+    """
+    ...
+
+@typing.overload
+def assoc[K, V]() -> typing.Callable[
+    ..., dict[K, V] | collections.abc.MutableMapping[K, V]
+]: ...
+@typing.overload
+def assoc[K, V](
+    d: collections.abc.Mapping[K, V], /
+) -> typing.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]: ...
+@typing.overload
+def assoc[K, V](
+    d: collections.abc.Mapping[K, V], key: K, /
+) -> typing.Callable[[V], dict[K, V]]: ...
+@typing.overload
+def assoc[K, V](
+    d: collections.abc.Mapping[K, V],
+    key: K,
+    /,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
+) -> typing.Callable[[V], collections.abc.MutableMapping[K, V]]: ...
+@typing.overload
+def assoc[K, V](
+    d: collections.abc.Mapping[K, V], key: K, value: V, /
+) -> dict[K, V]: ...
+@typing.overload
+def assoc[K, V](
+    d: collections.abc.Mapping[K, V],
+    key: K,
+    value: V,
+    /,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
+) -> collections.abc.MutableMapping[K, V]: ...
+def assoc[K, V](
+    d: collections.abc.Mapping[K, V] = ...,
+    key: K = ...,
+    value: V = ...,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]] = dict,
+) -> (
+    dict[K, V]
+    | collections.abc.MutableMapping[K, V]
+    | typing.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]
+):
+    """Curried version of assoc
+
+    Return a new dict with new key value pair.
+
+    Does not modify the initial dictionary.
+
+    >>> from toolz.curried import assoc
+    >>> d = {'x': 1}
+    >>> assoc(d, 'y', 2)
+    {'x': 1, 'y': 2}
+
+    Can be partially applied:
+    >>> add_y = assoc(d, 'y')
+    >>> add_y(2)
+    {'x': 1, 'y': 2}
+
+    Common pattern for updating dicts immutably:
+    >>> user = {'name': 'Alice', 'age': 30}
+    >>> updated = assoc(user, 'age', 31)
+    >>> updated
+    {'name': 'Alice', 'age': 31}
+    >>> user  # Original unchanged
+    {'name': 'Alice', 'age': 30}
+
+    Partially applied for mapping:
+    >>> from toolz.curried import map
+    >>> users = [{'name': 'Alice'}, {'name': 'Bob'}]
+    >>> list(map(lambda u: assoc(u, 'active', True), users))
+    [{'name': 'Alice', 'active': True}, {'name': 'Bob', 'active': True}]
+
+    See Also:
+        dissoc
+        update_in
+        assoc_in
+    """
+    ...
+
 assoc_in = toolz.curry(toolz.assoc_in)
 cons = toolz.curry(toolz.cons)
 countby = toolz.curry(toolz.countby)
@@ -92,7 +239,79 @@ def drop[T](
     """
     ...
 
-excepts = toolz.curry(toolz.excepts)
+@typing.overload
+def excepts[T, **P]() -> typing.Callable[..., toolz.excepts[T, P]]: ...
+@typing.overload
+def excepts[T, **P](
+    exc: type[Exception] | tuple[type[Exception], ...], /
+) -> (
+    typing.Callable[[typing.Callable[P, T]], toolz.excepts[T, P]]
+    | typing.Callable[
+        [typing.Callable[P, T], typing.Callable[[Exception], T]], toolz.excepts[T, P]
+    ]
+): ...
+@typing.overload
+def excepts[T, **P](
+    exc: type[Exception] | tuple[type[Exception], ...],
+    func: typing.Callable[P, T],
+    /,
+) -> toolz.excepts[T, P]: ...
+@typing.overload
+def excepts[T, **P](
+    exc: type[Exception] | tuple[type[Exception], ...],
+    func: typing.Callable[P, T],
+    handler: typing.Callable[[Exception], T],
+    /,
+) -> toolz.excepts[T, P]: ...
+def excepts[T, **P](
+    exc: type[Exception] | tuple[type[Exception], ...] = ...,
+    func: typing.Callable[P, T] = ...,
+    handler: typing.Callable[[Exception], T] | None = ...,
+) -> toolz.excepts[T, P] | typing.Callable[..., toolz.excepts[T, P]]:
+    """Curried version of excepts
+
+    A wrapper around a function to catch exceptions and dispatch to a handler.
+
+    This is like a functional try/except block.
+
+    >>> from toolz.curried import excepts
+    >>> excepting = excepts(
+    ...     ValueError,
+    ...     lambda a: [1, 2].index(a),
+    ...     lambda _: -1,
+    ... )
+    >>> excepting(1)
+    0
+    >>> excepting(3)
+    -1
+
+    Can be partially applied:
+    >>> handle_value_error = excepts(ValueError)
+    >>> safe_index = handle_value_error(lambda a: [1, 2].index(a), lambda _: -1)
+    >>> safe_index(1)
+    0
+    >>> safe_index(3)
+    -1
+
+    Multiple exceptions:
+    >>> excepting = excepts((IndexError, KeyError), lambda a: a[0])
+    >>> excepting([1])
+    1
+    >>> excepting([])  # Returns None (default handler)
+
+    Common pattern for safe operations:
+    >>> from toolz.curried import pipe
+    >>> safe_int = excepts(ValueError, int, lambda _: 0)
+    >>> safe_int("123")
+    123
+    >>> safe_int("abc")
+    0
+
+    See Also:
+        do
+        complement
+    """
+    ...
 
 @typing.overload
 def filter[T]() -> typing.Callable[
@@ -311,12 +530,316 @@ def groupby[KT, T](
     ...
 
 interpose = toolz.curry(toolz.interpose)
-itemfilter = toolz.curry(toolz.itemfilter)
-itemmap = toolz.curry(toolz.itemmap)
+
+@typing.overload
+def itemfilter[K, V]() -> typing.Callable[
+    ..., dict[K, V] | collections.abc.MutableMapping[K, V]
+]: ...
+
+# Stage 1a: Just predicate (no factory) - returns callable waiting for dict
+@typing.overload
+def itemfilter[K, V](
+    predicate: typing.Callable[[tuple[K, V]], bool], /
+) -> typing.Callable[[collections.abc.Mapping[K, V]], dict[K, V]]: ...
+
+# Stage 1b: Predicate with factory - returns callable waiting for dict
+@typing.overload
+def itemfilter[K, V](
+    predicate: typing.Callable[[tuple[K, V]], bool],
+    /,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
+) -> typing.Callable[
+    [collections.abc.Mapping[K, V]], collections.abc.MutableMapping[K, V]
+]: ...
+
+# Stage 2a: Full application (no factory) - executes immediately
+@typing.overload
+def itemfilter[K, V](
+    predicate: typing.Callable[[tuple[K, V]], bool],
+    d: collections.abc.Mapping[K, V],
+    /,
+) -> dict[K, V]: ...
+
+# Stage 2b: Full application (with factory) - executes immediately
+@typing.overload
+def itemfilter[K, V](
+    predicate: typing.Callable[[tuple[K, V]], bool],
+    d: collections.abc.Mapping[K, V],
+    /,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
+) -> collections.abc.MutableMapping[K, V]: ...
+def itemfilter[K, V](
+    predicate: typing.Callable[[tuple[K, V]], bool] = ...,
+    d: collections.abc.Mapping[K, V] = ...,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]] = dict,
+) -> (
+    dict[K, V]
+    | collections.abc.MutableMapping[K, V]
+    | typing.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]
+):
+    """Curried version of itemfilter
+
+    Filter items in dictionary by (key, value) tuple.
+
+    >>> from toolz.curried import itemfilter
+    >>> def isvalid(item):
+    ...     k, v = item
+    ...     return k % 2 == 0 and v < 4
+    >>> d = {1: 2, 2: 3, 3: 4, 4: 5}
+    >>> itemfilter(isvalid, d)
+    {2: 3}
+
+    Can be partially applied:
+    >>> filter_valid = itemfilter(isvalid)
+    >>> filter_valid(d)
+    {2: 3}
+
+    Common pattern for filtering by both key and value:
+    >>> data = {'a': 1, 'b': 2, 'c': 3, 'd': 4}
+    >>> itemfilter(lambda item: item[0] < 'c' and item[1] > 1, data)
+    {'b': 2}
+
+    See Also:
+        keyfilter
+        valfilter
+        itemmap
+    """
+    ...
+
+@typing.overload
+def itemmap[K0, V0, K1, V1]() -> typing.Callable[
+    ..., dict[K1, V1] | collections.abc.MutableMapping[K1, V1]
+]: ...
+
+# Stage 1a: Just func (no factory) - returns callable waiting for dict
+@typing.overload
+def itemmap[K0, V0, K1, V1](
+    func: typing.Callable[[tuple[K0, V0]], tuple[K1, V1]], /
+) -> typing.Callable[[collections.abc.Mapping[K0, V0]], dict[K1, V1]]: ...
+
+# Stage 1b: Func with factory - returns callable waiting for dict
+@typing.overload
+def itemmap[K0, V0, K1, V1](
+    func: typing.Callable[[tuple[K0, V0]], tuple[K1, V1]],
+    /,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K1, V1]],
+) -> typing.Callable[
+    [collections.abc.Mapping[K0, V0]], collections.abc.MutableMapping[K1, V1]
+]: ...
+
+# Stage 2a: Full application (no factory) - executes immediately
+@typing.overload
+def itemmap[K0, V0, K1, V1](
+    func: typing.Callable[[tuple[K0, V0]], tuple[K1, V1]],
+    d: collections.abc.Mapping[K0, V0],
+    /,
+) -> dict[K1, V1]: ...
+
+# Stage 2b: Full application (with factory) - executes immediately
+@typing.overload
+def itemmap[K0, V0, K1, V1](
+    func: typing.Callable[[tuple[K0, V0]], tuple[K1, V1]],
+    d: collections.abc.Mapping[K0, V0],
+    /,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K1, V1]],
+) -> collections.abc.MutableMapping[K1, V1]: ...
+def itemmap[K0, V0, K1, V1](
+    func: typing.Callable[[tuple[K0, V0]], tuple[K1, V1]] = ...,
+    d: collections.abc.Mapping[K0, V0] = ...,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K1, V1]] = dict,
+) -> (
+    dict[K1, V1]
+    | collections.abc.MutableMapping[K1, V1]
+    | typing.Callable[..., dict[K1, V1] | collections.abc.MutableMapping[K1, V1]]
+):
+    """Curried version of itemmap
+
+    Apply function to (key, value) tuples of dictionary.
+
+    >>> from toolz.curried import itemmap
+    >>> accountids = {"Alice": 10, "Bob": 20}
+    >>> itemmap(reversed, accountids)  # doctest: +SKIP
+    {10: "Alice", 20: "Bob"}
+
+    Can be partially applied:
+    >>> swap_items = itemmap(reversed)
+    >>> swap_items(accountids)  # doctest: +SKIP
+    {10: "Alice", 20: "Bob"}
+
+    Common pattern for transforming both keys and values:
+    >>> data = {'a': 1, 'b': 2, 'c': 3}
+    >>> itemmap(lambda item: (item[0].upper(), item[1] * 10), data)
+    {'A': 10, 'B': 20, 'C': 30}
+
+    See Also:
+        keymap
+        valmap
+        itemfilter
+    """
+    ...
+
 iterate = toolz.curry(toolz.iterate)
 join = toolz.curry(toolz.join)
-keyfilter = toolz.curry(toolz.keyfilter)  # high priority
-keymap = toolz.curry(toolz.keymap)  # high priority
+
+# Curried keyfilter with explicit overloads for type safety
+# Stage 0: No arguments - returns a callable
+@typing.overload
+def keyfilter[K, V]() -> typing.Callable[
+    ..., dict[K, V] | collections.abc.MutableMapping[K, V]
+]: ...
+
+# Stage 1a: Just predicate (no factory) - returns callable waiting for dict
+@typing.overload
+def keyfilter[K, V](
+    predicate: typing.Callable[[K], bool], /
+) -> typing.Callable[[collections.abc.Mapping[K, V]], dict[K, V]]: ...
+
+# Stage 1b: Predicate with factory - returns callable waiting for dict
+@typing.overload
+def keyfilter[K, V](
+    predicate: typing.Callable[[K], bool],
+    /,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
+) -> typing.Callable[
+    [collections.abc.Mapping[K, V]], collections.abc.MutableMapping[K, V]
+]: ...
+
+# Stage 2a: Full application (no factory) - executes immediately
+@typing.overload
+def keyfilter[K, V](
+    predicate: typing.Callable[[K], bool],
+    d: collections.abc.Mapping[K, V],
+    /,
+) -> dict[K, V]: ...
+
+# Stage 2b: Full application (with factory) - executes immediately
+@typing.overload
+def keyfilter[K, V](
+    predicate: typing.Callable[[K], bool],
+    d: collections.abc.Mapping[K, V],
+    /,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
+) -> collections.abc.MutableMapping[K, V]: ...
+def keyfilter[K, V](
+    predicate: typing.Callable[[K], bool] = ...,
+    d: collections.abc.Mapping[K, V] = ...,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]] = dict,
+) -> (
+    dict[K, V]
+    | collections.abc.MutableMapping[K, V]
+    | typing.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]
+):
+    """Curried version of keyfilter
+
+    Filter items in dictionary by key.
+
+    >>> from toolz.curried import keyfilter
+    >>> iseven = lambda x: x % 2 == 0
+    >>> d = {1: 2, 2: 3, 3: 4, 4: 5}
+    >>> keyfilter(iseven, d)
+    {2: 3, 4: 5}
+
+    Can be partially applied:
+    >>> filter_even_keys = keyfilter(iseven)
+    >>> filter_even_keys(d)
+    {2: 3, 4: 5}
+
+    Common pattern for filtering dict keys:
+    >>> from toolz.curried import pipe
+    >>> users = {'admin_alice': 1, 'user_bob': 2, 'admin_charlie': 3}
+    >>> keyfilter(lambda k: k.startswith('admin_'), users)
+    {'admin_alice': 1, 'admin_charlie': 3}
+
+    See Also:
+        valfilter
+        itemfilter
+        keymap
+    """
+    ...
+
+@typing.overload
+def keymap[K0, K1, V]() -> typing.Callable[
+    ..., dict[K1, V] | collections.abc.MutableMapping[K1, V]
+]: ...
+
+# Stage 1a: Just func (no factory) - returns callable waiting for dict
+@typing.overload
+def keymap[K0, K1, V](
+    func: typing.Callable[[K0], K1], /
+) -> typing.Callable[[collections.abc.Mapping[K0, V]], dict[K1, V]]: ...
+
+# Stage 1b: Func with factory - returns callable waiting for dict
+@typing.overload
+def keymap[K0, K1, V](
+    func: typing.Callable[[K0], K1],
+    /,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K1, V]],
+) -> typing.Callable[
+    [collections.abc.Mapping[K0, V]], collections.abc.MutableMapping[K1, V]
+]: ...
+
+# Stage 2a: Full application (no factory) - executes immediately
+@typing.overload
+def keymap[K0, K1, V](
+    func: typing.Callable[[K0], K1],
+    d: collections.abc.Mapping[K0, V],
+    /,
+) -> dict[K1, V]: ...
+
+# Stage 2b: Full application (with factory) - executes immediately
+@typing.overload
+def keymap[K0, K1, V](
+    func: typing.Callable[[K0], K1],
+    d: collections.abc.Mapping[K0, V],
+    /,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K1, V]],
+) -> collections.abc.MutableMapping[K1, V]: ...
+def keymap[K0, K1, V](
+    func: typing.Callable[[K0], K1] = ...,
+    d: collections.abc.Mapping[K0, V] = ...,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K1, V]] = dict,
+) -> (
+    dict[K1, V]
+    | collections.abc.MutableMapping[K1, V]
+    | typing.Callable[..., dict[K1, V] | collections.abc.MutableMapping[K1, V]]
+):
+    """Curried version of keymap
+
+    Apply function to keys of dictionary.
+
+    >>> from toolz.curried import keymap
+    >>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
+    >>> keymap(str.lower, bills)  # doctest: +SKIP
+    {'alice': [20, 15, 30], 'bob': [10, 35]}
+
+    Can be partially applied:
+    >>> lowercase_keys = keymap(str.lower)
+    >>> lowercase_keys(bills)  # doctest: +SKIP
+    {'alice': [20, 15, 30], 'bob': [10, 35]}
+
+    Common pattern for normalizing keys:
+    >>> data = {'Name': 'Alice', 'Age': 30, 'City': 'NYC'}
+    >>> keymap(str.lower, data)
+    {'name': 'Alice', 'age': 30, 'city': 'NYC'}
+
+    See Also:
+        valmap
+        itemmap
+        keyfilter
+    """
+    ...
 
 @typing.overload
 def map[T1, S]() -> typing.Callable[
@@ -451,29 +974,22 @@ def map[S](
     """
     ...
 
-# Stage 0: No arguments - returns a callable waiting for function
 @typing.overload
 def mapcat[T, R]() -> typing.Callable[
     ..., collections.abc.Iterator[R] | typing.Callable[..., collections.abc.Iterator[R]]
 ]: ...
-
-# Stage 1: Just function - returns callable waiting for seqs
 @typing.overload
 def mapcat[T, R](
     func: typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterable[R]], /
 ) -> typing.Callable[
     [collections.abc.Iterable[collections.abc.Iterable[T]]], collections.abc.Iterator[R]
 ]: ...
-
-# Stage 2: Function + seqs - executes immediately
 @typing.overload
 def mapcat[T, R](
     func: typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterable[R]],
     seqs: collections.abc.Iterable[collections.abc.Iterable[T]],
     /,
 ) -> collections.abc.Iterator[R]: ...
-
-# Implementation signature (catch-all)
 def mapcat[T, R](
     func: typing.Callable[
         [collections.abc.Iterable[T]], collections.abc.Iterable[R]
@@ -508,11 +1024,275 @@ def mapcat[T, R](
 
 nth = toolz.curry(toolz.nth)
 partial = toolz.curry(toolz.partial)
-partition = toolz.curry(toolz.partition)  # high priority
-partition_all = toolz.curry(toolz.partition_all)  # high priority
+
+@typing.overload
+def partition[T]() -> typing.Callable[..., collections.abc.Iterator[tuple[T, ...]]]: ...
+@typing.overload
+def partition[T](
+    n: int, /
+) -> typing.Callable[..., collections.abc.Iterator[tuple[T, ...]]]: ...
+@typing.overload
+def partition[T](
+    n: typing.Literal[1], seq: collections.abc.Iterable[T], /
+) -> collections.abc.Iterator[tuple[T]]: ...
+@typing.overload
+def partition[T](
+    n: int, seq: collections.abc.Iterable[T], /
+) -> collections.abc.Iterator[tuple[T, ...]]: ...
+@typing.overload
+def partition[T](
+    n: typing.Literal[1], seq: collections.abc.Iterable[T], pad: typing.Any, /
+) -> collections.abc.Iterator[tuple[T]]:
+    # Note: With n=1, tuples always have exactly 1 element, so pad is never used
+    ...
+
+@typing.overload
+def partition[T, P](
+    n: int, seq: collections.abc.Iterable[T], pad: P, /
+) -> collections.abc.Iterator[tuple[T | P, ...]]: ...
+def partition[T, P](
+    n: int = ...,
+    seq: collections.abc.Iterable[T] = ...,
+    pad: P = ...,
+) -> (
+    collections.abc.Iterator[tuple[T, ...]]
+    | collections.abc.Iterator[tuple[T | P, ...]]
+    | typing.Callable[..., collections.abc.Iterator[tuple[T | P, ...]]]
+):
+    """Curried version of partition
+
+    Partition sequence into tuples of length n.
+
+    >>> from toolz.curried import partition
+    >>> list(partition(2, [1, 2, 3, 4]))
+    [(1, 2), (3, 4)]
+
+    Can be partially applied:
+    >>> partition_pairs = partition(2)
+    >>> list(partition_pairs([1, 2, 3, 4]))
+    [(1, 2), (3, 4)]
+
+    If length not evenly divisible, final tuple is dropped without pad:
+    >>> list(partition(2, [1, 2, 3, 4, 5]))
+    [(1, 2), (3, 4)]
+
+    With pad, final tuple is filled:
+    >>> list(partition(2, [1, 2, 3, 4, 5], None))
+    [(1, 2), (3, 4), (5, None)]
+
+    Common pattern for chunking data:
+    >>> from toolz.curried import pipe
+    >>> data = range(10)
+    >>> list(pipe(data, partition(3)))
+    [(0, 1, 2), (3, 4, 5), (6, 7, 8)]
+
+    See Also:
+        partition_all
+    """
+    ...
+
+# Curried partition_all with explicit overloads for type safety
+# Stage 0: No arguments - returns a callable
+@typing.overload
+def partition_all[T]() -> typing.Callable[
+    ..., collections.abc.Iterator[tuple[T, ...]]
+]: ...
+
+# Stage 1: Just n - returns callable waiting for seq
+@typing.overload
+def partition_all[T](
+    n: typing.Literal[1], /
+) -> typing.Callable[
+    [collections.abc.Iterable[T]], collections.abc.Iterator[tuple[T]]
+]: ...
+@typing.overload
+def partition_all[T](
+    n: int, /
+) -> typing.Callable[
+    [collections.abc.Iterable[T]], collections.abc.Iterator[tuple[T, ...]]
+]: ...
+
+# Stage 2: Full application - executes immediately
+@typing.overload
+def partition_all[T](
+    n: typing.Literal[1], seq: collections.abc.Iterable[T], /
+) -> collections.abc.Iterator[tuple[T]]: ...
+@typing.overload
+def partition_all[T](
+    n: int, seq: collections.abc.Iterable[T], /
+) -> collections.abc.Iterator[tuple[T, ...]]: ...
+def partition_all[T](
+    n: int = ..., seq: collections.abc.Iterable[T] = ...
+) -> (
+    collections.abc.Iterator[tuple[T, ...]]
+    | typing.Callable[
+        [collections.abc.Iterable[T]],
+        collections.abc.Iterator[tuple[T, ...]] | collections.abc.Iterator[tuple[T]],
+    ]
+    | typing.Callable[..., collections.abc.Iterator[tuple[T, ...]]]
+):
+    """Curried version of partition_all
+
+    Partition all elements of sequence into tuples of length at most n.
+
+    The final tuple may be shorter to accommodate extra elements.
+
+    >>> from toolz.curried import partition_all
+    >>> list(partition_all(2, [1, 2, 3, 4]))
+    [(1, 2), (3, 4)]
+
+    >>> list(partition_all(2, [1, 2, 3, 4, 5]))
+    [(1, 2), (3, 4), (5,)]
+
+    Can be partially applied:
+    >>> partition_pairs = partition_all(2)
+    >>> list(partition_pairs([1, 2, 3, 4, 5]))
+    [(1, 2), (3, 4), (5,)]
+
+    Common pattern for chunking data:
+    >>> from toolz.curried import pipe
+    >>> data = range(10)
+    >>> list(pipe(data, partition_all(3)))
+    [(0, 1, 2), (3, 4, 5), (6, 7, 8), (9,)]
+
+    See Also:
+        partition
+    """
+    ...
+
 partitionby = toolz.curry(toolz.partitionby)
 peekn = toolz.curry(toolz.peekn)
-pluck = toolz.curry(toolz.pluck)  # high priority
+
+@typing.overload
+def pluck[T]() -> typing.Callable[
+    ..., collections.abc.Iterator[T] | collections.abc.Iterator[tuple[T, ...]]
+]: ...
+@typing.overload
+def pluck[T](
+    ind: collections.abc.Sequence[typing.Any], /
+) -> (
+    typing.Callable[
+        [
+            collections.abc.Iterable[
+                collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+            ]
+        ],
+        collections.abc.Iterator[tuple[T, ...]],
+    ]
+    | typing.Callable[
+        [
+            collections.abc.Iterable[
+                collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+            ],
+            T,
+        ],
+        collections.abc.Iterator[tuple[T, ...]],
+    ]
+): ...
+@typing.overload
+def pluck[T](
+    ind: typing.Any, /
+) -> (
+    typing.Callable[
+        [
+            collections.abc.Iterable[
+                collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+            ]
+        ],
+        collections.abc.Iterator[T],
+    ]
+    | typing.Callable[
+        [
+            collections.abc.Iterable[
+                collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+            ],
+            T,
+        ],
+        collections.abc.Iterator[T],
+    ]
+): ...
+@typing.overload
+def pluck[T](
+    ind: collections.abc.Sequence[typing.Any],
+    seqs: collections.abc.Iterable[
+        collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+    ],
+    /,
+) -> collections.abc.Iterator[tuple[T, ...]]: ...
+@typing.overload
+def pluck[T](
+    ind: typing.Any,
+    seqs: collections.abc.Iterable[
+        collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+    ],
+    /,
+) -> collections.abc.Iterator[T]: ...
+@typing.overload
+def pluck[T](
+    ind: collections.abc.Sequence[typing.Any],
+    seqs: collections.abc.Iterable[
+        collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+    ],
+    default: T,
+    /,
+) -> collections.abc.Iterator[tuple[T, ...]]: ...
+@typing.overload
+def pluck[T](
+    ind: typing.Any,
+    seqs: collections.abc.Iterable[
+        collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+    ],
+    default: T,
+    /,
+) -> collections.abc.Iterator[T]: ...
+def pluck[T](
+    ind: typing.Any | collections.abc.Sequence[typing.Any] = ...,
+    seqs: collections.abc.Iterable[
+        collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+    ] = ...,
+    default: T = ...,
+) -> (
+    collections.abc.Iterator[T]
+    | collections.abc.Iterator[tuple[T, ...]]
+    | typing.Callable[
+        ..., collections.abc.Iterator[T] | collections.abc.Iterator[tuple[T, ...]]
+    ]
+):
+    """Curried version of pluck
+
+    Pluck an element or several elements from each item in a sequence.
+
+    >>> from toolz.curried import pluck
+    >>> data = [{'name': 'Alice', 'age': 30}, {'name': 'Bob', 'age': 25}]
+    >>> list(pluck('name', data))
+    ['Alice', 'Bob']
+
+    Can be partially applied:
+    >>> get_names = pluck('name')
+    >>> list(get_names(data))
+    ['Alice', 'Bob']
+
+    Pluck multiple fields:
+    >>> list(pluck(['name', 'age'], data))
+    [('Alice', 30), ('Bob', 25)]
+
+    With default for missing keys:
+    >>> data_incomplete = [{'name': 'Alice'}, {'name': 'Bob', 'age': 25}]
+    >>> list(pluck('age', data_incomplete, default=None))
+    [None, 25]
+
+    Common pattern with pipe:
+    >>> from toolz.curried import pipe
+    >>> users = [{'id': 1, 'name': 'Alice'}, {'id': 2, 'name': 'Bob'}]
+    >>> list(pipe(users, pluck('name')))
+    ['Alice', 'Bob']
+
+    See Also:
+        get
+        map
+    """
+    ...
+
 random_sample = toolz.curry(toolz.random_sample)
 
 @typing.overload
@@ -567,7 +1347,89 @@ def reduce[T, S](
 reduceby = toolz.curry(toolz.reduceby)
 remove = toolz.curry(toolz.remove)
 sliding_window = toolz.curry(toolz.sliding_window)
-sorted = toolz.curry(toolz.sorted)  # high priority
+
+# Curried sorted with explicit overloads for type safety
+# Note: key and reverse are keyword-only parameters in builtin sorted
+# Stage 0: No arguments - returns a callable
+@typing.overload
+def sorted[T]() -> typing.Callable[..., list[T]]: ...
+
+# Stage 1a: Partial application with keyword args only (no key) - returns callable
+@typing.overload
+def sorted[T](
+    *,
+    key: None = None,
+    reverse: bool = False,
+) -> collections.abc.Callable[[collections.abc.Iterable[T]], list[T]]: ...
+
+# Stage 1b: Partial application with keyword args only (with key) - returns callable
+@typing.overload
+def sorted[T](
+    *,
+    key: collections.abc.Callable[[T], _Comparable],
+    reverse: bool = False,
+) -> collections.abc.Callable[[collections.abc.Iterable[T]], list[T]]: ...
+
+# Stage 2a: Full application (no key) - executes immediately
+@typing.overload
+def sorted[T](
+    iterable: collections.abc.Iterable[T],
+    /,
+    *,
+    key: None = None,
+    reverse: bool = False,
+) -> list[T]: ...
+
+# Stage 2b: Full application (with key function) - executes immediately
+@typing.overload
+def sorted[T](
+    iterable: collections.abc.Iterable[T],
+    /,
+    *,
+    key: collections.abc.Callable[[T], _Comparable],
+    reverse: bool = False,
+) -> list[T]: ...
+
+# Implementation signature (catch-all)
+def sorted[T](
+    iterable: collections.abc.Iterable[T] = ...,
+    /,
+    *,
+    key: collections.abc.Callable[[T], _Comparable] | None = None,
+    reverse: bool = False,
+) -> list[T] | typing.Callable[..., list[T]]:
+    """Curried version of builtin sorted
+
+    Return a new sorted list from the items in iterable.
+
+    >>> from toolz.curried import sorted
+    >>> sorted([3, 1, 2])
+    [1, 2, 3]
+
+    With key function:
+    >>> sorted(['alice', 'Bob', 'Charlie'], key=str.lower)
+    ['alice', 'Bob', 'Charlie']
+
+    With reverse:
+    >>> sorted([3, 1, 2], reverse=True)
+    [3, 2, 1]
+
+    Partial application with keyword args:
+    >>> case_insensitive_sort = sorted(key=str.lower)
+    >>> case_insensitive_sort(['Bob', 'alice', 'Charlie'])
+    ['alice', 'Bob', 'Charlie']
+
+    Common pattern for sorting by attribute:
+    >>> users = [{'name': 'Alice', 'age': 30}, {'name': 'Bob', 'age': 25}]
+    >>> sorted(users, key=lambda u: u['age'])
+    [{'name': 'Bob', 'age': 25}, {'name': 'Alice', 'age': 30}]
+
+    See Also:
+        groupby
+        unique
+    """
+    ...
+
 tail = toolz.curry(toolz.tail)
 
 @typing.overload
@@ -616,7 +1478,155 @@ take_nth = toolz.curry(toolz.take_nth)
 topk = toolz.curry(toolz.topk)
 unique = toolz.curry(toolz.unique)
 update_in = toolz.curry(toolz.update_in)
-valfilter = toolz.curry(toolz.valfilter)  # high priority
-valmap = toolz.curry(toolz.valmap)  # high priority
 
-del toolz
+@typing.overload
+def valfilter[K, V]() -> typing.Callable[
+    ..., dict[K, V] | collections.abc.MutableMapping[K, V]
+]: ...
+
+# Stage 1a: Just predicate (no factory) - returns callable waiting for dict
+@typing.overload
+def valfilter[K, V](
+    predicate: typing.Callable[[V], bool], /
+) -> typing.Callable[[collections.abc.Mapping[K, V]], dict[K, V]]: ...
+
+# Stage 1b: Predicate with factory - returns callable waiting for dict
+@typing.overload
+def valfilter[K, V](
+    predicate: typing.Callable[[V], bool],
+    /,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
+) -> typing.Callable[
+    [collections.abc.Mapping[K, V]], collections.abc.MutableMapping[K, V]
+]: ...
+
+# Stage 2a: Full application (no factory) - executes immediately
+@typing.overload
+def valfilter[K, V](
+    predicate: typing.Callable[[V], bool],
+    d: collections.abc.Mapping[K, V],
+    /,
+) -> dict[K, V]: ...
+
+# Stage 2b: Full application (with factory) - executes immediately
+@typing.overload
+def valfilter[K, V](
+    predicate: typing.Callable[[V], bool],
+    d: collections.abc.Mapping[K, V],
+    /,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
+) -> collections.abc.MutableMapping[K, V]: ...
+def valfilter[K, V](
+    predicate: typing.Callable[[V], bool] = ...,
+    d: collections.abc.Mapping[K, V] = ...,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]] = dict,
+) -> (
+    dict[K, V]
+    | collections.abc.MutableMapping[K, V]
+    | typing.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]
+):
+    """Curried version of valfilter
+
+    Filter items in dictionary by value.
+
+    >>> from toolz.curried import valfilter
+    >>> iseven = lambda x: x % 2 == 0
+    >>> d = {1: 2, 2: 3, 3: 4, 4: 5}
+    >>> valfilter(iseven, d)
+    {1: 2, 3: 4}
+
+    Can be partially applied:
+    >>> filter_even_vals = valfilter(iseven)
+    >>> filter_even_vals(d)
+    {1: 2, 3: 4}
+
+    Common pattern for filtering dict values:
+    >>> from toolz.curried import pipe
+    >>> scores = {'alice': 85, 'bob': 92, 'charlie': 78, 'diana': 95}
+    >>> valfilter(lambda v: v >= 90, scores)
+    {'bob': 92, 'diana': 95}
+
+    See Also:
+        keyfilter
+        itemfilter
+        valmap
+    """
+    ...
+
+@typing.overload
+def valmap[K, V0, V1]() -> typing.Callable[
+    ..., dict[K, V1] | collections.abc.MutableMapping[K, V1]
+]: ...
+
+# Stage 1a: Just func (no factory) - returns callable waiting for dict
+@typing.overload
+def valmap[K, V0, V1](
+    func: typing.Callable[[V0], V1], /
+) -> typing.Callable[[collections.abc.Mapping[K, V0]], dict[K, V1]]: ...
+
+# Stage 1b: Func with factory - returns callable waiting for dict
+@typing.overload
+def valmap[K, V0, V1](
+    func: typing.Callable[[V0], V1],
+    /,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K, V1]],
+) -> typing.Callable[
+    [collections.abc.Mapping[K, V0]], collections.abc.MutableMapping[K, V1]
+]: ...
+
+# Stage 2a: Full application (no factory) - executes immediately
+@typing.overload
+def valmap[K, V0, V1](
+    func: typing.Callable[[V0], V1],
+    d: collections.abc.Mapping[K, V0],
+    /,
+) -> dict[K, V1]: ...
+
+# Stage 2b: Full application (with factory) - executes immediately
+@typing.overload
+def valmap[K, V0, V1](
+    func: typing.Callable[[V0], V1],
+    d: collections.abc.Mapping[K, V0],
+    /,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K, V1]],
+) -> collections.abc.MutableMapping[K, V1]: ...
+def valmap[K, V0, V1](
+    func: typing.Callable[[V0], V1] = ...,
+    d: collections.abc.Mapping[K, V0] = ...,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K, V1]] = dict,
+) -> (
+    dict[K, V1]
+    | collections.abc.MutableMapping[K, V1]
+    | typing.Callable[..., dict[K, V1] | collections.abc.MutableMapping[K, V1]]
+):
+    """Curried version of valmap
+
+    Apply function to values of dictionary.
+
+    >>> from toolz.curried import valmap
+    >>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
+    >>> valmap(sum, bills)  # doctest: +SKIP
+    {'Alice': 65, 'Bob': 45}
+
+    Can be partially applied:
+    >>> sum_values = valmap(sum)
+    >>> sum_values(bills)  # doctest: +SKIP
+    {'Alice': 65, 'Bob': 45}
+
+    Common pattern for transforming values:
+    >>> scores = {'alice': 85, 'bob': 92, 'charlie': 78}
+    >>> valmap(lambda x: 'pass' if x >= 80 else 'fail', scores)
+    {'alice': 'pass', 'bob': 'pass', 'charlie': 'fail'}
+
+    See Also:
+        keymap
+        itemmap
+        valfilter
+    """
+    ...
