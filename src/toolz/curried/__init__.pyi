@@ -192,10 +192,101 @@ def assoc[K, V](
     ...
 
 assoc_in = toolz.curry(toolz.assoc_in)
-cons = toolz.curry(toolz.cons)
+
+# Curried cons with explicit overloads for type safety
+# Stage 0: No arguments - returns a callable
+@typing.overload
+def cons[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
+
+# Stage 1: Just el - returns callable waiting for seq
+@typing.overload
+def cons[T](
+    el: T, /
+) -> typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]: ...
+
+# Stage 2: Full application - executes immediately
+@typing.overload
+def cons[T](
+    el: T, seq: collections.abc.Iterable[T], /
+) -> collections.abc.Iterator[T]: ...
+def cons[T](
+    el: T = ..., seq: collections.abc.Iterable[T] = ...
+) -> (
+    collections.abc.Iterator[T]
+    | typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]
+    | typing.Callable[..., collections.abc.Iterator[T]]
+):
+    """Curried version of cons
+
+    Add el to beginning of (possibly infinite) sequence seq.
+
+    >>> from toolz.curried import cons
+    >>> list(cons(1, [2, 3]))
+    [1, 2, 3]
+
+    Can be partially applied:
+    >>> add_header = cons('header')
+    >>> list(add_header(['a', 'b', 'c']))
+    ['header', 'a', 'b', 'c']
+
+    Common pattern with pipe:
+    >>> from toolz.curried import pipe
+    >>> list(pipe([2, 3, 4], cons(1)))
+    [1, 2, 3, 4]
+
+    See Also:
+        concat
+    """
+    ...
+
 countby = toolz.curry(toolz.countby)
 dissoc = toolz.curry(toolz.dissoc)
-do = toolz.curry(toolz.do)
+
+# Curried do with explicit overloads for type safety
+# Stage 0: No arguments - returns a callable
+@typing.overload
+def do[T]() -> typing.Callable[..., T]: ...
+
+# Stage 1: Just func - returns callable waiting for x
+@typing.overload
+def do[T](func: typing.Callable[[T], typing.Any], /) -> typing.Callable[[T], T]: ...
+
+# Stage 2: Full application - executes immediately
+@typing.overload
+def do[T](func: typing.Callable[[T], typing.Any], x: T, /) -> T: ...
+def do[T](
+    func: typing.Callable[[T], typing.Any] = ..., x: T = ...
+) -> T | typing.Callable[[T], T] | typing.Callable[..., T]:
+    """Curried version of do
+
+    Runs func on x, returns x.
+
+    Because the results of func are not returned, only the side
+    effects of func are relevant.
+
+    >>> from toolz.curried import do
+    >>> log = []
+    >>> inc = lambda x: x + 1
+    >>> log_and_inc = do(log.append)
+    >>> result = log_and_inc(5)
+    >>> result
+    5
+    >>> log
+    [5]
+
+    Common pattern for debugging in pipes:
+    >>> from toolz.curried import pipe
+    >>> result = pipe(
+    ...     [1, 2, 3],
+    ...     do(print),  # Prints [1, 2, 3]
+    ...     lambda x: [i * 2 for i in x]
+    ... )
+
+    See Also:
+        compose
+        pipe
+    """
+    ...
 
 @typing.overload
 def drop[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
@@ -247,7 +338,8 @@ def excepts[T, **P](
 ) -> (
     typing.Callable[[typing.Callable[P, T]], toolz.excepts[T, P]]
     | typing.Callable[
-        [typing.Callable[P, T], typing.Callable[[Exception], T]], toolz.excepts[T, P]
+        [typing.Callable[P, T], typing.Callable[[Exception], T]],
+        toolz.excepts[T, P],
     ]
 ): ...
 @typing.overload
@@ -529,7 +621,51 @@ def groupby[KT, T](
     """
     ...
 
-interpose = toolz.curry(toolz.interpose)
+# Curried interpose with explicit overloads for type safety
+# Stage 0: No arguments - returns a callable
+@typing.overload
+def interpose[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
+
+# Stage 1: Just el - returns callable waiting for seq
+@typing.overload
+def interpose[T](
+    el: T, /
+) -> typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]: ...
+
+# Stage 2: Full application - executes immediately
+@typing.overload
+def interpose[T](
+    el: T, seq: collections.abc.Iterable[T], /
+) -> collections.abc.Iterator[T]: ...
+def interpose[T](
+    el: T = ..., seq: collections.abc.Iterable[T] = ...
+) -> (
+    collections.abc.Iterator[T]
+    | typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]
+    | typing.Callable[..., collections.abc.Iterator[T]]
+):
+    """Curried version of interpose
+
+    Introduce element between each pair of elements in seq.
+
+    >>> from toolz.curried import interpose
+    >>> list(interpose("a", [1, 2, 3]))
+    [1, 'a', 2, 'a', 3]
+
+    Can be partially applied:
+    >>> comma_separate = interpose(',')
+    >>> list(comma_separate(['a', 'b', 'c']))
+    ['a', ',', 'b', ',', 'c']
+
+    Common pattern for joining with delimiter:
+    >>> from toolz.curried import pipe
+    >>> list(pipe(['hello', 'world'], interpose(' ')))
+    ['hello', ' ', 'world']
+
+    See Also:
+        concat
+    """
+    ...
 
 @typing.overload
 def itemfilter[K, V]() -> typing.Callable[
@@ -684,7 +820,66 @@ def itemmap[K0, V0, K1, V1](
     """
     ...
 
-iterate = toolz.curry(toolz.iterate)
+# Curried iterate with explicit overloads for type safety
+# Stage 0: No arguments - returns a callable
+@typing.overload
+def iterate[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
+
+# Stage 1: Just func - returns callable waiting for x
+@typing.overload
+def iterate[T](
+    func: typing.Callable[[T], T], /
+) -> typing.Callable[[T], collections.abc.Iterator[T]]: ...
+
+# Stage 2: Full application - executes immediately
+@typing.overload
+def iterate[T](
+    func: typing.Callable[[T], T], x: T, /
+) -> collections.abc.Iterator[T]: ...
+def iterate[T](
+    func: typing.Callable[[T], T] = ..., x: T = ...
+) -> (
+    collections.abc.Iterator[T]
+    | typing.Callable[[T], collections.abc.Iterator[T]]
+    | typing.Callable[..., collections.abc.Iterator[T]]
+):
+    """Curried version of iterate
+
+    Repeatedly apply a function func onto an original input.
+
+    Yields x, then func(x), then func(func(x)), then func(func(func(x))), etc.
+
+    >>> from toolz.curried import iterate
+    >>> def inc(x): return x + 1
+    >>> counter = iterate(inc, 0)
+    >>> next(counter)
+    0
+    >>> next(counter)
+    1
+    >>> next(counter)
+    2
+
+    Can be partially applied:
+    >>> double = lambda x: x * 2
+    >>> powers_of_two = iterate(double)
+    >>> it = powers_of_two(1)
+    >>> next(it)
+    1
+    >>> next(it)
+    2
+    >>> next(it)
+    4
+
+    Common pattern for generating sequences:
+    >>> from toolz.curried import take
+    >>> list(take(5, iterate(lambda x: x * 2, 1)))
+    [1, 2, 4, 8, 16]
+
+    See Also:
+        accumulate
+    """
+    ...
+
 join = toolz.curry(toolz.join)
 
 # Curried keyfilter with explicit overloads for type safety
@@ -1022,7 +1217,49 @@ def mapcat[T, R](
     """
     ...
 
-nth = toolz.curry(toolz.nth)
+# Curried nth with explicit overloads for type safety
+# Stage 0: No arguments - returns a callable
+@typing.overload
+def nth[T]() -> typing.Callable[..., T]: ...
+
+# Stage 1: Just n - returns callable waiting for seq
+@typing.overload
+def nth[T](n: int, /) -> typing.Callable[[collections.abc.Iterable[T]], T]: ...
+
+# Stage 2: Full application - executes immediately
+@typing.overload
+def nth[T](n: int, seq: collections.abc.Iterable[T], /) -> T: ...
+def nth[T](
+    n: int = ..., seq: collections.abc.Iterable[T] = ...
+) -> T | typing.Callable[[collections.abc.Iterable[T]], T] | typing.Callable[..., T]:
+    """Curried version of nth
+
+    The nth element in a sequence.
+
+    >>> from toolz.curried import nth
+    >>> nth(1, 'ABC')
+    'B'
+
+    Can be partially applied:
+    >>> get_second = nth(1)
+    >>> get_second('ABC')
+    'B'
+    >>> get_second([10, 20, 30])
+    20
+
+    Common pattern with map:
+    >>> from toolz.curried import map
+    >>> data = [['a', 'b'], ['c', 'd'], ['e', 'f']]
+    >>> list(map(nth(1), data))
+    ['b', 'd', 'f']
+
+    See Also:
+        first
+        second
+        last
+    """
+    ...
+
 partial = toolz.curry(toolz.partial)
 
 @typing.overload
@@ -1345,8 +1582,149 @@ def reduce[T, S](
     ...
 
 reduceby = toolz.curry(toolz.reduceby)
-remove = toolz.curry(toolz.remove)
-sliding_window = toolz.curry(toolz.sliding_window)
+
+# Curried remove with explicit overloads for type safety
+# Stage 0: No arguments - returns a callable
+@typing.overload
+def remove[T]() -> typing.Callable[..., collections.abc.Iterable[T]]: ...
+
+# Stage 1: Just predicate - returns callable waiting for seq
+@typing.overload
+def remove[T](
+    predicate: typing.Callable[[T], bool], /
+) -> typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterable[T]]: ...
+
+# Stage 2: Full application - executes immediately
+@typing.overload
+def remove[T](
+    predicate: typing.Callable[[T], bool], seq: collections.abc.Iterable[T], /
+) -> collections.abc.Iterable[T]: ...
+def remove[T](
+    predicate: typing.Callable[[T], bool] = ..., seq: collections.abc.Iterable[T] = ...
+) -> (
+    collections.abc.Iterable[T]
+    | typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterable[T]]
+    | typing.Callable[..., collections.abc.Iterable[T]]
+):
+    """Curried version of remove
+
+    Return those items of sequence for which predicate(item) is False.
+
+    >>> from toolz.curried import remove
+    >>> def iseven(x): return x % 2 == 0
+    >>> list(remove(iseven, [1, 2, 3, 4]))
+    [1, 3]
+
+    Can be partially applied:
+    >>> remove_evens = remove(iseven)
+    >>> list(remove_evens([1, 2, 3, 4, 5]))
+    [1, 3, 5]
+
+    Common pattern (opposite of filter):
+    >>> from toolz.curried import pipe
+    >>> list(pipe([1, 2, 3, 4], remove(lambda x: x < 3)))
+    [3, 4]
+
+    See Also:
+        filter
+    """
+    ...
+
+# Curried sliding_window with explicit overloads for type safety
+# Stage 0: No arguments - returns a callable
+@typing.overload
+def sliding_window[T]() -> typing.Callable[
+    ..., collections.abc.Iterator[tuple[T, ...]]
+]: ...
+
+# Stage 1a: Just n=1 - returns callable waiting for seq
+@typing.overload
+def sliding_window[T](
+    n: typing.Literal[1], /
+) -> typing.Callable[
+    [collections.abc.Iterable[T]], collections.abc.Iterator[tuple[T]]
+]: ...
+
+# Stage 1b: Just n=2 - returns callable waiting for seq
+@typing.overload
+def sliding_window[T](
+    n: typing.Literal[2], /
+) -> typing.Callable[
+    [collections.abc.Iterable[T]], collections.abc.Iterator[tuple[T, T]]
+]: ...
+
+# Stage 1c: Just n=3 - returns callable waiting for seq
+@typing.overload
+def sliding_window[T](
+    n: typing.Literal[3], /
+) -> typing.Callable[
+    [collections.abc.Iterable[T]], collections.abc.Iterator[tuple[T, T, T]]
+]: ...
+
+# Stage 1d: Just n (general) - returns callable waiting for seq
+@typing.overload
+def sliding_window[T](
+    n: int, /
+) -> typing.Callable[
+    [collections.abc.Iterable[T]], collections.abc.Iterator[tuple[T, ...]]
+]: ...
+
+# Stage 2a: Full application with n=1 - executes immediately
+@typing.overload
+def sliding_window[T](
+    n: typing.Literal[1], seq: collections.abc.Iterable[T], /
+) -> collections.abc.Iterator[tuple[T]]: ...
+
+# Stage 2b: Full application with n=2 - executes immediately
+@typing.overload
+def sliding_window[T](
+    n: typing.Literal[2], seq: collections.abc.Iterable[T], /
+) -> collections.abc.Iterator[tuple[T, T]]: ...
+
+# Stage 2c: Full application with n=3 - executes immediately
+@typing.overload
+def sliding_window[T](
+    n: typing.Literal[3], seq: collections.abc.Iterable[T], /
+) -> collections.abc.Iterator[tuple[T, T, T]]: ...
+
+# Stage 2d: Full application (general) - executes immediately
+@typing.overload
+def sliding_window[T](
+    n: int, seq: collections.abc.Iterable[T], /
+) -> collections.abc.Iterator[tuple[T, ...]]: ...
+def sliding_window[T](
+    n: int = ..., seq: collections.abc.Iterable[T] = ...
+) -> (
+    collections.abc.Iterator[tuple[T, ...]]
+    | typing.Callable[
+        [collections.abc.Iterable[T]], collections.abc.Iterator[tuple[T, ...]]
+    ]
+    | typing.Callable[..., collections.abc.Iterator[tuple[T, ...]]]
+):
+    """Curried version of sliding_window
+
+    A sequence of overlapping subsequences.
+
+    >>> from toolz.curried import sliding_window
+    >>> list(sliding_window(2, [1, 2, 3, 4]))
+    [(1, 2), (2, 3), (3, 4)]
+
+    Can be partially applied:
+    >>> window_of_3 = sliding_window(3)
+    >>> list(window_of_3([1, 2, 3, 4, 5]))
+    [(1, 2, 3), (2, 3, 4), (3, 4, 5)]
+
+    Common pattern for smoothing:
+    >>> from toolz.curried import pipe, map
+    >>> mean = lambda seq: float(sum(seq)) / len(seq)
+    >>> data = [1, 2, 3, 4, 5]
+    >>> list(pipe(data, sliding_window(2), map(mean)))
+    [1.5, 2.5, 3.5, 4.5]
+
+    See Also:
+        partition
+    """
+    ...
 
 # Curried sorted with explicit overloads for type safety
 # Note: key and reverse are keyword-only parameters in builtin sorted
@@ -1430,7 +1808,53 @@ def sorted[T](
     """
     ...
 
-tail = toolz.curry(toolz.tail)
+# Curried tail with explicit overloads for type safety
+# Stage 0: No arguments - returns a callable
+@typing.overload
+def tail[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
+
+# Stage 1: Just n - returns callable waiting for seq
+@typing.overload
+def tail[T](
+    n: int, /
+) -> typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]: ...
+
+# Stage 2: Full application - executes immediately
+@typing.overload
+def tail[T](
+    n: int, seq: collections.abc.Iterable[T], /
+) -> collections.abc.Iterator[T]: ...
+def tail[T](
+    n: int = ..., seq: collections.abc.Iterable[T] = ...
+) -> (
+    collections.abc.Iterator[T]
+    | typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]
+    | typing.Callable[..., collections.abc.Iterator[T]]
+):
+    """Curried version of tail
+
+    The last n elements of a sequence.
+
+    >>> from toolz.curried import tail
+    >>> list(tail(2, [10, 20, 30, 40, 50]))
+    [40, 50]
+
+    Can be partially applied:
+    >>> last_three = tail(3)
+    >>> list(last_three([1, 2, 3, 4, 5]))
+    [3, 4, 5]
+
+    Common pattern with pipe:
+    >>> from toolz.curried import pipe
+    >>> list(pipe([1, 2, 3, 4, 5], tail(2)))
+    [4, 5]
+
+    See Also:
+        take
+        drop
+        last
+    """
+    ...
 
 @typing.overload
 def take[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
@@ -1474,7 +1898,53 @@ def take[T](
     """
     ...
 
-take_nth = toolz.curry(toolz.take_nth)
+# Curried take_nth with explicit overloads for type safety
+# Stage 0: No arguments - returns a callable
+@typing.overload
+def take_nth[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
+
+# Stage 1: Just n - returns callable waiting for seq
+@typing.overload
+def take_nth[T](
+    n: int, /
+) -> typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]: ...
+
+# Stage 2: Full application - executes immediately
+@typing.overload
+def take_nth[T](
+    n: int, seq: collections.abc.Iterable[T], /
+) -> collections.abc.Iterator[T]: ...
+def take_nth[T](
+    n: int = ..., seq: collections.abc.Iterable[T] = ...
+) -> (
+    collections.abc.Iterator[T]
+    | typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]
+    | typing.Callable[..., collections.abc.Iterator[T]]
+):
+    """Curried version of take_nth
+
+    Every nth item in seq.
+
+    >>> from toolz.curried import take_nth
+    >>> list(take_nth(2, [10, 20, 30, 40, 50]))
+    [10, 30, 50]
+
+    Can be partially applied:
+    >>> every_third = take_nth(3)
+    >>> list(every_third([1, 2, 3, 4, 5, 6, 7, 8, 9]))
+    [1, 4, 7]
+
+    Common pattern for sampling:
+    >>> from toolz.curried import pipe
+    >>> list(pipe(range(10), take_nth(2)))
+    [0, 2, 4, 6, 8]
+
+    See Also:
+        take
+        drop
+    """
+    ...
+
 topk = toolz.curry(toolz.topk)
 unique = toolz.curry(toolz.unique)
 update_in = toolz.curry(toolz.update_in)

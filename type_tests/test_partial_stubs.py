@@ -1,8 +1,9 @@
 """Verify that partial stubs are found for both toolz and tlz."""
 
 # Check which modules are imported
-import toolz
 import tlz
+
+import toolz
 
 print("toolz location:", toolz.__file__)
 print("tlz location:", tlz.__file__)
