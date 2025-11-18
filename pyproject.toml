@@ -38,3 +38,9 @@ per-file-ignores = {"**/__init__.pyi" = ["F401"]}
 # 2. Keep imports split across multiple lines if they don't fit
 combine-as-imports = true
 split-on-trailing-comma = false
+
+[tool.pytest.ini_options]
+# Exclude type_tests directory - these files are for basedpyright analysis only
+# They contain reveal_type() calls which don't exist at runtime
+testpaths = ["tests"]
+python_files = "test_*.py"

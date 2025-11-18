@@ -1,5 +1,7 @@
 # toolz-stubs
 
+[![CI](https://github.com/mgrinshpon/toolz-stubs/actions/workflows/ci.yml/badge.svg)](https://github.com/mgrinshpon/toolz-stubs/actions/workflows/ci.yml)
+
 Type stubs for [toolz](https://github.com/pytoolz/toolz), and [tlz](https://github.com/pytoolz/toolz/tree/main/tlz) - Python functional programming libraries.
 
 Type hinting for [cytoolz](https://github.com/pytoolz/cytoolz) is available via [tlz](https://github.com/pytoolz/toolz/tree/main/tlz).
