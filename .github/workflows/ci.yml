@@ -29,7 +29,7 @@ jobs:
         run: uv python install 3.12
 
       - name: Install dependencies
-        run: uv sync --dev-dependencies
+        run: uv sync --dev
 
       - name: Run ruff check
         run: uv run ruff check
@@ -53,7 +53,7 @@ jobs:
         run: uv python install 3.12
 
       - name: Install dependencies
-        run: uv sync --dev-dependencies
+        run: uv sync --dev
 
       - name: Run basedpyright
         run: uv run basedpyright
@@ -80,7 +80,7 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv sync --dev-dependencies
+        run: uv sync --dev
 
       - name: Run pytest
         run: uv run pytest tests/ -v
