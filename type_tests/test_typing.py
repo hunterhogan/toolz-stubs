@@ -2,14 +2,12 @@
 
 from typing import reveal_type
 
-# TODO: Uncomment when tlz stubs are added (see issue for tlz support)
-# import tlz
-
+import tlz
 import toolz
 
 # Test basic function
 result1 = toolz.identity(42)
-# result2 = tlz.identity("hello")
+result2 = tlz.identity("hello")
 
 # Test compose
 composed = toolz.compose(str.upper, str.strip)
@@ -26,6 +24,6 @@ text = composed("  hello  ")
 # These should reveal the types if stubs are working
 # (pyright will show these in output)
 reveal_type(result1)
-# reveal_type(result2)  # TODO: Uncomment when tlz stubs are added
+reveal_type(result2)
 reveal_type(composed)
 # reveal_type(add_five)
