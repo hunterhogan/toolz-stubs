@@ -59,18 +59,14 @@ Modules covered:
 ## Development
 
 ```bash
-# Install dependencies
-uv sync
-
-# Run type checker
-uv run basedpyright
-
-# Run tests
-uv run pytest
-
-# Build
-uv build
+make sync    # Install dependencies
+make check   # Run type checker
+make test    # Run tests
+make lint    # Run linter
+make build   # Build wheel
 ```
+
+If manually running commands, be sure to specify `--no-editable` or hatchling will mispackage toolz & tlz packages.
 
 ## Contributing
 
