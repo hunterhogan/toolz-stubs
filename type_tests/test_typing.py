@@ -1,5 +1,7 @@
 """Test that our stubs are found by type checkers."""
 
+from typing import reveal_type
+
 # TODO: Uncomment when tlz stubs are added (see issue for tlz support)
 # import tlz
 
