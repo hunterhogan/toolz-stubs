@@ -307,6 +307,46 @@ def memoize[T](
     """
     ...
 
+@typing.overload
+def compose[**P, T](fn_0: typing.Callable[P, T]) -> typing.Callable[P, T]: ...
+@typing.overload
+def compose[**P, T0, T1](
+    fn_0: typing.Callable[[T0], T1], fn_1: typing.Callable[P, T0]
+) -> typing.Callable[P, T1]: ...
+@typing.overload
+def compose[**P, T0, T1, T2](
+    fn_0: typing.Callable[[T1], T2],
+    fn_1: typing.Callable[[T0], T1],
+    fn_2: typing.Callable[P, T0],
+) -> typing.Callable[P, T2]: ...
+@typing.overload
+def compose[**P, T0, T1, T2, T3](
+    fn_0: typing.Callable[[T2], T3],
+    fn_1: typing.Callable[[T1], T2],
+    fn_2: typing.Callable[[T0], T1],
+    fn_3: typing.Callable[P, T0],
+) -> typing.Callable[P, T3]: ...
+@typing.overload
+def compose[**P, T0, T1, T2, T3, T4](
+    fn_0: typing.Callable[[T3], T4],
+    fn_1: typing.Callable[[T2], T3],
+    fn_2: typing.Callable[[T1], T2],
+    fn_3: typing.Callable[[T0], T1],
+    fn_4: typing.Callable[P, T0],
+) -> typing.Callable[P, T4]: ...
+@typing.overload
+def compose[**P, T0, T1, T2, T3, T4, T5](
+    fn_0: typing.Callable[[T4], T5],
+    fn_1: typing.Callable[[T3], T4],
+    fn_2: typing.Callable[[T2], T3],
+    fn_3: typing.Callable[[T1], T2],
+    fn_4: typing.Callable[[T0], T1],
+    fn_5: typing.Callable[P, T0],
+) -> typing.Callable[P, T5]: ...
+@typing.overload
+def compose(
+    *funcs: typing.Callable[..., typing.Any],
+) -> typing.Callable[..., typing.Any]: ...
 def compose(
     *funcs: typing.Callable[..., typing.Any],
 ) -> typing.Callable[..., typing.Any]:
