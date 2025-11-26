@@ -1,4 +1,4 @@
-.PHONY: sync check test build clean
+.PHONY: sync check test lint format build clean
 
 sync:
 	uv sync --no-editable
@@ -11,6 +11,9 @@ test:
 
 lint:
 	uv run --no-editable ruff check
+
+format:
+	uv run --no-editable ruff format --check
 
 build:
 	uv build

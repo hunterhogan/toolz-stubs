@@ -29,13 +29,13 @@ jobs:
         run: uv python install 3.12
 
       - name: Install dependencies
-        run: uv sync --dev
+        run: make sync
 
       - name: Run ruff check
-        run: uv run ruff check
+        run: make lint
 
       - name: Run ruff format check
-        run: uv run ruff format --check
+        run: make format
 
   type-check:
     name: Type Check
@@ -53,10 +53,10 @@ jobs:
         run: uv python install 3.12
 
       - name: Install dependencies
-        run: uv sync --dev
+        run: make sync
 
       - name: Run basedpyright
-        run: uv run basedpyright
+        run: make check
 
   test:
     name: Test (Python ${{ matrix.python-version }})
@@ -80,18 +80,21 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv sync --dev
+        run: make sync
 
       - name: Run pytest
-        run: uv run pytest tests/ -v
+        run: make test
 
       - name: Verify stub imports
         run: |
           # Test that stubs can be imported without errors
-          uv run python -c "
+          uv run --no-editable python -c "
           import toolz
+          import tlz
           from toolz import curry, compose, identity
+          from tlz import curry, compose, identity
           from toolz.curried import map, filter
+          from tlz.curried import map, filter
           print('✓ Stubs imported successfully')
           "
 
@@ -111,20 +114,26 @@ jobs:
         run: uv python install 3.12
 
       - name: Build package
-        run: uv build
+        run: make build
 
       - name: Verify wheel contents
         run: |
           echo "Checking wheel contents..."
-          # Extract wheel filename
           WHEEL_FILE=$(ls dist/*.whl)
           echo "Built wheel: $WHEEL_FILE"
 
-          # Check that the wheel contains .pyi files
-          unzip -l "$WHEEL_FILE" | grep -E '\.pyi$' || (echo "❌ No .pyi files found in wheel!" && exit 1)
+          # Check for toolz-stubs
+          unzip -l "$WHEEL_FILE" | grep -E 'toolz-stubs/.*\.pyi$' || (echo "❌ No toolz-stubs .pyi files found!" && exit 1)
+          echo "✓ toolz-stubs found"
 
-          # Check for py.typed marker
-          unzip -l "$WHEEL_FILE" | grep 'py\.typed' || (echo "❌ No py.typed marker found in wheel!" && exit 1)
+          # Check for tlz-stubs
+          unzip -l "$WHEEL_FILE" | grep -E 'tlz-stubs/.*\.pyi$' || (echo "❌ No tlz-stubs .pyi files found!" && exit 1)
+          echo "✓ tlz-stubs found"
+
+          # Check for py.typed markers
+          unzip -l "$WHEEL_FILE" | grep 'toolz-stubs/py\.typed' || (echo "❌ No toolz-stubs py.typed marker!" && exit 1)
+          unzip -l "$WHEEL_FILE" | grep 'tlz-stubs/py\.typed' || (echo "❌ No tlz-stubs py.typed marker!" && exit 1)
+          echo "✓ py.typed markers found"
 
           echo "✓ Wheel structure verified successfully"
 

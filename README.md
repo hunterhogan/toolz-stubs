@@ -63,6 +63,7 @@ make sync    # Install dependencies
 make check   # Run type checker
 make test    # Run tests
 make lint    # Run linter
+make format  # Check formatting
 make build   # Build wheel
 ```
 
