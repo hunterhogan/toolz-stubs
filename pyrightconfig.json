@@ -1,17 +1,4 @@
 {
   "pythonVersion": "3.12",
   "include": ["src/**/*", "tests/**/*", "type_tests/**/*"]
-  // "executionEnvironments": [
-  //   {
-  //     "root": "tests",
-  //     "extraPaths": ["src"]
-  //   },
-  //   {
-  //     "root": "type_tests",
-  //     "extraPaths": ["src"]
-  //   },
-  //   {
-  //     "root": "src"
-  //   }
-  // ]
 }
