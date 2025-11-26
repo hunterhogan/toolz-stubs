@@ -68,6 +68,13 @@ make build   # Build wheel
 
 If manually running commands, be sure to specify `--no-editable` or hatchling will mispackage toolz & tlz packages.
 
+### Tests
+
+The tests in `tests/` serve a few purposes:
+- they verify runtime behavior with pytest.
+- they verify that these stubs geninely improve the developer experience in an IDE.
+- they are type-checked by basedpyright. This ensures the stubs match actual library behavior.
+
 ## Contributing
 
 Contributions are welcome! Areas that could use improvement:
