@@ -1,13 +1,17 @@
 """Tests for tlz.functoolz to verify stubs work correctly."""
 
+from typing import assert_type
+
 import tlz
 
 
 def test_identity() -> None:
     """identity should preserve type and return the same value."""
-    x: int = tlz.identity(5)
-    s: str = tlz.identity("hello")
+    x = tlz.identity(5)
+    s = tlz.identity("hello")
 
+    _ = assert_type(x, int)
+    _ = assert_type(s, str)
     assert x == 5
     assert s == "hello"
 
@@ -15,38 +19,43 @@ def test_identity() -> None:
 def test_compose() -> None:
     """compose should chain functions right-to-left."""
     composed = tlz.compose(str.upper, str.strip)
-    result: str = composed("  hello  ")
+    result = composed("  hello  ")
 
+    _ = assert_type(result, str)
     assert result == "HELLO"
 
 
 def test_compose_left() -> None:
     """compose_left should chain functions left-to-right."""
     composed = tlz.compose_left(str.strip, str.upper)
-    result: str = composed("  hello world  ")
+    result = composed("  hello world  ")
 
+    _ = assert_type(result, str)
     assert result == "HELLO WORLD"
 
 
 def test_compose_multi() -> None:
     """compose with multiple functions should chain correctly."""
     composed = tlz.compose(len, str.upper, str.strip)
-    result: int = composed("  hello  ")
+    result = composed("  hello  ")
 
+    _ = assert_type(result, int)
     assert result == 5
 
 
 def test_pipe() -> None:
     """pipe should thread value through functions."""
-    result: str = tlz.pipe("  hello  ", str.strip, str.upper)
+    result = tlz.pipe("  hello  ", str.strip, str.upper)
 
+    _ = assert_type(result, str)
     assert result == "HELLO"
 
 
 def test_pipe_type_transformation() -> None:
     """pipe should handle type transformations."""
-    result: int = tlz.pipe("hello", str.upper, len)
+    result = tlz.pipe("hello", str.upper, len)
 
+    _ = assert_type(result, int)
     assert result == 5
 
 
@@ -72,16 +81,18 @@ def test_juxt() -> None:
         return x * 2
 
     j = tlz.juxt(inc, double)
-    result: tuple[int, ...] = j(10)
+    result = j(10)
 
+    _ = assert_type(result, tuple[int, ...])
     assert result == (11, 20)
 
 
 def test_do() -> None:
     """do should call function for side effects and return input."""
     log: list[int] = []
-    result: int = tlz.do(log.append, 42)
+    result = tlz.do(log.append, 42)
 
+    _ = assert_type(result, int)
     assert result == 42
     assert log == [42]
 
@@ -92,6 +103,7 @@ def test_apply() -> None:
     def add(x: int, y: int) -> int:
         return x + y
 
-    result: int = tlz.apply(add, 2, 3)
+    result = tlz.apply(add, 2, 3)
 
+    _ = assert_type(result, int)
     assert result == 5
