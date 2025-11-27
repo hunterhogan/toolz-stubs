@@ -2,7 +2,7 @@
 import collections.abc
 import typing
 
-from toolz.utils import no_default
+from .utils import no_default
 
 __all__ = (
     "remove",
@@ -67,6 +67,15 @@ def remove[T](
     """
     ...
 
+@typing.overload
+def accumulate[T](
+    binop: typing.Callable[[T, T], T],
+    seq: collections.abc.Iterable[T],
+) -> collections.abc.Iterator[T]: ...
+@typing.overload
+def accumulate[T](
+    binop: typing.Callable[[T, T], T], seq: collections.abc.Iterable[T], initial: T
+) -> collections.abc.Iterator[T]: ...
 def accumulate[T](
     binop: typing.Callable[[T, T], T],
     seq: collections.abc.Iterable[T],

@@ -1,6 +1,6 @@
 """Tests for tlz.itertoolz to verify stubs work correctly."""
 
-from operator import add
+import collections.abc
 from typing import assert_type, cast
 
 import tlz
@@ -197,14 +197,38 @@ def test_topk() -> None:
 
 
 def test_accumulate() -> None:
-    """accumulate should compute running totals."""
+    # No default
     nums = [1, 2, 3, 4, 5]
+    add = int.__add__
 
     result = list(tlz.accumulate(add, nums))
 
-    # TODO: accumulate stub returns Any - needs improvement
-    # _ = assert_type(result, list[int])
+    _ = assert_type(result, list[int])
     assert result == [1, 3, 6, 10, 15]
+
+    # With default
+    dicts = [
+        {
+            "a": 1,
+            "b": 2,
+            "c": 3,
+        },
+        {
+            "d": 4,
+        },
+        {
+            "e": 5,
+        },
+    ]
+    result2 = tlz.accumulate(tlz.merge, dicts, dict())
+    _ = assert_type(result2, collections.abc.Iterator[dict[str, int]])
+    assert list(result2)[3] == {
+        "a": 1,
+        "b": 2,
+        "c": 3,
+        "d": 4,
+        "e": 5,
+    }
 
 
 def test_iterate() -> None:
