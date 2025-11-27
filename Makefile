@@ -1,12 +1,12 @@
 .PHONY: sync check test lint format build clean
 
 sync:
-	uv sync --no-editable
+	uv sync --no-editable --reinstall-package toolz-stubs
 
-check:
+check: sync
 	uv run --no-editable basedpyright
 
-test:
+test: sync
 	uv run --no-editable pytest
 
 lint:
