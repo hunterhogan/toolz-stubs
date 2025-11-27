@@ -52,9 +52,6 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
-      - name: Install dependencies
-        run: make sync
-
       - name: Run basedpyright
         run: make check
 
@@ -78,9 +75,6 @@ jobs:
 
       - name: Set up Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: make sync
 
       - name: Run pytest
         run: make test
