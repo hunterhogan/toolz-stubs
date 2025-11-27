@@ -168,22 +168,22 @@ def test_interpose() -> None:
 
 def test_get_single() -> None:
     """get with single index should return element."""
-    seq = ["a", "b", "c"]
+    seq = [10, 20, 30]
 
     result = tlz.get(1, seq)
 
-    _ = assert_type(result, str)
-    assert result == "b"
+    _ = assert_type(result, int)
+    assert result == 20
 
 
 def test_get_multiple() -> None:
     """get with multiple indices should return tuple."""
-    seq = ["a", "b", "c", "d"]
+    seq = [10, 20, 30, 40]
 
     result = tlz.get([0, 2], seq)
 
-    _ = assert_type(result, tuple[str, ...])
-    assert result == ("a", "c")
+    _ = assert_type(result, tuple[int, ...])
+    assert result == (10, 30)
 
 
 def test_topk() -> None:
@@ -299,3 +299,48 @@ def test_peekn() -> None:
     _ = assert_type(result, list[int])
     assert first_two == (1, 2)
     assert result == [1, 2, 3, 4, 5]
+
+
+def test_diff() -> None:
+    """diff should return elements that differ between sequences."""
+    seq1 = [1, 2, 3]
+    seq2 = [1, 2, 10]
+
+    result = list(tlz.diff(seq1, seq2))
+
+    _ = assert_type(result, list[tuple[int, ...]])
+    assert result == [(3, 10)]
+
+
+def test_reduceby() -> None:
+    """reduceby should group and reduce by key function."""
+
+    def is_even(x: int) -> bool:
+        return x % 2 == 0
+
+    add = int.__add__
+    nums = [1, 2, 3, 4, 5]
+
+    result = tlz.reduceby(is_even, add, nums)
+
+    _ = assert_type(result, dict[bool, int])
+    assert result[True] == 6  # 2 + 4
+    assert result[False] == 9  # 1 + 3 + 5
+
+
+def test_join() -> None:
+    """join should join two sequences on common keys."""
+    left = [(1, 10), (2, 20), (3, 30)]
+    right = [(1, 100), (2, 200), (4, 400)]
+
+    def left_key(x: tuple[int, int]) -> int:
+        return x[0]
+
+    def right_key(x: tuple[int, int]) -> int:
+        return x[0]
+
+    result = list(tlz.join(left_key, left, right_key, right))
+
+    _ = assert_type(result, list[tuple[tuple[int, int] | tuple[int, int], tuple[int, int] | tuple[int, int]]])
+    assert (1, 10) in [r[0] for r in result]
+    assert (1, 100) in [r[1] for r in result]
