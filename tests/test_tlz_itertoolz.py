@@ -1,6 +1,7 @@
 """Tests for tlz.itertoolz to verify stubs work correctly."""
 
 from operator import add
+from typing import assert_type, cast
 
 import tlz
 
@@ -9,9 +10,13 @@ def test_first_second_last() -> None:
     """first, second, last should return correct elements."""
     nums = [1, 2, 3, 4, 5]
 
-    f: int = tlz.first(nums)
-    s: int = tlz.second(nums)
-    la: int = tlz.last(nums)
+    f = tlz.first(nums)
+    s = tlz.second(nums)
+    la = tlz.last(nums)
+
+    _ = assert_type(f, int)
+    _ = assert_type(s, int)
+    _ = assert_type(la, int)
 
     assert f == 1
     assert s == 2
@@ -22,8 +27,9 @@ def test_nth() -> None:
     """nth should return the element at index n."""
     nums = [10, 20, 30, 40]
 
-    result: int = tlz.nth(2, nums)
+    result = tlz.nth(2, nums)
 
+    _ = assert_type(result, int)
     assert result == 30
 
 
@@ -32,8 +38,9 @@ def test_take() -> None:
     nums = [1, 2, 3, 4, 5]
 
     taken = tlz.take(3, nums)
-    result: list[int] = list(taken)
+    result = list(taken)
 
+    _ = assert_type(result, list[int])
     assert result == [1, 2, 3]
 
 
@@ -42,8 +49,9 @@ def test_drop() -> None:
     nums = [1, 2, 3, 4, 5]
 
     dropped = tlz.drop(2, nums)
-    result: list[int] = list(dropped)
+    result = list(dropped)
 
+    _ = assert_type(result, list[int])
     assert result == [3, 4, 5]
 
 
@@ -51,8 +59,9 @@ def test_take_nth() -> None:
     """take_nth should return every nth element."""
     nums = [0, 1, 2, 3, 4, 5, 6]
 
-    result: list[int] = list(tlz.take_nth(2, nums))
+    result = list(tlz.take_nth(2, nums))
 
+    _ = assert_type(result, list[int])
     assert result == [0, 2, 4, 6]
 
 
@@ -61,8 +70,9 @@ def test_partition() -> None:
     nums = [1, 2, 3, 4, 5, 6]
 
     parts = tlz.partition(2, nums)
-    result: list[tuple[int, ...]] = list(parts)
+    result = list(parts)
 
+    _ = assert_type(result, list[tuple[int, ...]])
     assert result == [(1, 2), (3, 4), (5, 6)]
 
 
@@ -71,8 +81,9 @@ def test_partition_all() -> None:
     nums = [1, 2, 3, 4, 5]
 
     parts = tlz.partition_all(2, nums)
-    result: list[tuple[int, ...]] = list(parts)
+    result = list(parts)
 
+    _ = assert_type(result, list[tuple[int, ...]])
     assert result == [(1, 2), (3, 4), (5,)]
 
 
@@ -81,8 +92,9 @@ def test_sliding_window() -> None:
     nums = [1, 2, 3, 4]
 
     windows = tlz.sliding_window(2, nums)
-    result: list[tuple[int, ...]] = list(windows)
+    result = list(windows)
 
+    _ = assert_type(result, list[tuple[int, ...]])
     assert result == [(1, 2), (2, 3), (3, 4)]
 
 
@@ -90,8 +102,9 @@ def test_groupby() -> None:
     """groupby should group items by key function."""
     names = ["Alice", "Bob", "Charlie", "Dan"]
 
-    grouped: dict[int, list[str]] = tlz.groupby(len, names)
+    grouped = tlz.groupby(len, names)
 
+    _ = assert_type(grouped, dict[int, list[str]])
     assert grouped[3] == ["Bob", "Dan"]
     assert grouped[5] == ["Alice"]
     assert grouped[7] == ["Charlie"]
@@ -101,8 +114,9 @@ def test_frequencies() -> None:
     """frequencies should count occurrences."""
     items = ["cat", "dog", "cat", "bird", "cat"]
 
-    freqs: dict[str, int] = tlz.frequencies(items)
+    freqs = tlz.frequencies(items)
 
+    _ = assert_type(freqs, dict[str, int])
     assert freqs["cat"] == 3
     assert freqs["dog"] == 1
     assert freqs["bird"] == 1
@@ -112,8 +126,9 @@ def test_unique() -> None:
     """unique should return distinct elements in order."""
     nums = [1, 2, 1, 3, 2, 4, 1]
 
-    result: list[int] = list(tlz.unique(nums))
+    result = list(tlz.unique(nums))
 
+    _ = assert_type(result, list[int])
     assert result == [1, 2, 3, 4]
 
 
@@ -121,29 +136,33 @@ def test_concat() -> None:
     """concat should concatenate iterables."""
     lists: list[list[int]] = [[1, 2], [3, 4], [5]]
 
-    result: list[int] = list(tlz.concat(lists))
+    result = list(tlz.concat(lists))
 
+    _ = assert_type(result, list[int])
     assert result == [1, 2, 3, 4, 5]
 
 
 def test_concatv() -> None:
     """concatv should concatenate variadic iterables."""
-    result: list[int] = list(tlz.concatv([1, 2], [3, 4], [5]))
+    result = list(tlz.concatv([1, 2], [3, 4], [5]))
 
+    _ = assert_type(result, list[int])
     assert result == [1, 2, 3, 4, 5]
 
 
 def test_interleave() -> None:
     """interleave should alternate between sequences."""
-    result: list[int] = list(tlz.interleave([[1, 2, 3], [10, 20, 30]]))
+    result = list(tlz.interleave([[1, 2, 3], [10, 20, 30]]))
 
+    _ = assert_type(result, list[int])
     assert result == [1, 10, 2, 20, 3, 30]
 
 
 def test_interpose() -> None:
     """interpose should insert element between items."""
-    result: list[int | str] = list(tlz.interpose("x", [1, 2, 3]))
+    result = list(tlz.interpose(cast(str, "x"), [1, 2, 3]))
 
+    _ = assert_type(result, list[int | str])
     assert result == [1, "x", 2, "x", 3]
 
 
@@ -151,8 +170,9 @@ def test_get_single() -> None:
     """get with single index should return element."""
     seq = ["a", "b", "c"]
 
-    result: str = tlz.get(1, seq)
+    result = tlz.get(1, seq)
 
+    _ = assert_type(result, str)
     assert result == "b"
 
 
@@ -160,8 +180,9 @@ def test_get_multiple() -> None:
     """get with multiple indices should return tuple."""
     seq = ["a", "b", "c", "d"]
 
-    result: tuple[str, ...] = tlz.get([0, 2], seq)
+    result = tlz.get([0, 2], seq)
 
+    _ = assert_type(result, tuple[str, ...])
     assert result == ("a", "c")
 
 
@@ -169,8 +190,9 @@ def test_topk() -> None:
     """topk should return the k largest elements."""
     nums = [3, 1, 4, 1, 5, 9, 2, 6]
 
-    result: tuple[int, ...] = tlz.topk(3, nums)
+    result = tlz.topk(3, nums)
 
+    _ = assert_type(result, tuple[int, ...])
     assert result == (9, 6, 5)
 
 
@@ -178,8 +200,10 @@ def test_accumulate() -> None:
     """accumulate should compute running totals."""
     nums = [1, 2, 3, 4, 5]
 
-    result: list[int] = list(tlz.accumulate(add, nums))
+    result = list(tlz.accumulate(add, nums))
 
+    # TODO: accumulate stub returns Any - needs improvement
+    # _ = assert_type(result, list[int])
     assert result == [1, 3, 6, 10, 15]
 
 
@@ -191,8 +215,9 @@ def test_iterate() -> None:
 
     counter = tlz.iterate(inc, 0)
 
-    result: list[int] = [next(counter) for _ in range(5)]
+    result = [next(counter) for _ in range(5)]
 
+    _ = assert_type(result, list[int])
     assert result == [0, 1, 2, 3, 4]
 
 
@@ -200,15 +225,17 @@ def test_count() -> None:
     """count should return the number of items."""
     nums = [1, 2, 3, 4, 5]
 
-    result: int = tlz.count(nums)
+    result = tlz.count(nums)
 
+    _ = assert_type(result, int)
     assert result == 5
 
 
 def test_cons() -> None:
     """cons should prepend element to sequence."""
-    result: list[int] = list(tlz.cons(0, [1, 2, 3]))
+    result = list(tlz.cons(0, [1, 2, 3]))
 
+    _ = assert_type(result, list[int])
     assert result == [0, 1, 2, 3]
 
 
@@ -218,8 +245,9 @@ def test_remove() -> None:
     def is_even(x: int) -> bool:
         return x % 2 == 0
 
-    result: list[int] = list(tlz.remove(is_even, [1, 2, 3, 4, 5]))
+    result = list(tlz.remove(is_even, [1, 2, 3, 4, 5]))
 
+    _ = assert_type(result, list[int])
     assert result == [1, 3, 5]
 
 
@@ -228,8 +256,10 @@ def test_peek() -> None:
     seq = [1, 2, 3]
 
     first, iterator = tlz.peek(seq)
-    result: list[int] = list(iterator)
+    result = list(iterator)
 
+    _ = assert_type(first, int)
+    _ = assert_type(result, list[int])
     assert first == 1
     assert result == [1, 2, 3]
 
@@ -239,7 +269,9 @@ def test_peekn() -> None:
     seq = [1, 2, 3, 4, 5]
 
     first_two, iterator = tlz.peekn(2, seq)
-    result: list[int] = list(iterator)
+    result = list(iterator)
 
+    _ = assert_type(first_two, tuple[int, ...])
+    _ = assert_type(result, list[int])
     assert first_two == (1, 2)
     assert result == [1, 2, 3, 4, 5]

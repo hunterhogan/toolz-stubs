@@ -1,4 +1,4 @@
 {
   "pythonVersion": "3.12",
-  "include": ["src/**/*", "tests/**/*", "type_tests/**/*"]
+  "include": ["src/**/*", "tests/**/*"]
 }
