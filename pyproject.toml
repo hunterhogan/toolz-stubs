@@ -1,6 +1,6 @@
 [project]
 name = "toolz-stubs"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Type stubs for toolz"
 readme = "README.md"
 authors = [
@@ -30,8 +30,11 @@ Repository = "https://github.com/mgrinshpon/toolz-stubs"
 Issues = "https://github.com/mgrinshpon/toolz-stubs/issues"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/toolz-stubs"]
