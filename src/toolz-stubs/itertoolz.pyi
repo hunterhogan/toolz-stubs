@@ -436,14 +436,26 @@ def reduceby[T, K](
     key: typing.Callable[[T], K],
     binop: typing.Callable[[T, T], T],
     seq: collections.abc.Iterable[T],
-    init: T | typing.Callable[[], T] | _NoDefaultType = no_default,
+) -> dict[K, T]: ...
+@typing.overload
+def reduceby[T, K](
+    key: typing.Callable[[T], K],
+    binop: typing.Callable[[T, T], T],
+    seq: collections.abc.Iterable[T],
+    init: T | typing.Callable[[], T],
 ) -> dict[K, T]: ...
 @typing.overload
 def reduceby[T](
     key: typing.Any,  # when not callable, use identity function
     binop: typing.Callable[[T, T], T],
     seq: collections.abc.Iterable[T],
-    init: T | typing.Callable[[], T] | _NoDefaultType = no_default,
+) -> dict[T, T]: ...
+@typing.overload
+def reduceby[T](
+    key: typing.Any,  # when not callable, use identity function
+    binop: typing.Callable[[T, T], T],
+    seq: collections.abc.Iterable[T],
+    init: T | typing.Callable[[], T],
 ) -> dict[T, T]: ...
 def reduceby[T, K](
     key: typing.Callable[[T], K] | typing.Any,
@@ -699,6 +711,39 @@ def getter[T](
 ]: ...
 
 # TODO implement overloads when leftkey/rightkey are not callables
+@typing.overload
+def join[T, U](
+    leftkey: typing.Callable[[T], typing.Hashable],
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Callable[[U], typing.Hashable],
+    rightseq: collections.abc.Iterable[U],
+) -> collections.abc.Iterator[tuple[T, U]]: ...
+@typing.overload
+def join[T, U](
+    leftkey: typing.Callable[[T], typing.Hashable],
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Callable[[U], typing.Hashable],
+    rightseq: collections.abc.Iterable[U],
+    left_default: T,
+) -> collections.abc.Iterator[tuple[T, U]]: ...
+@typing.overload
+def join[T, U](
+    leftkey: typing.Callable[[T], typing.Hashable],
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Callable[[U], typing.Hashable],
+    rightseq: collections.abc.Iterable[U],
+    left_default: T,
+    right_default: U,
+) -> collections.abc.Iterator[tuple[T, U]]: ...
+@typing.overload
+def join[T, U](
+    leftkey: typing.Callable[[T], typing.Hashable],
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Callable[[U], typing.Hashable],
+    rightseq: collections.abc.Iterable[U],
+    *,
+    right_default: U,
+) -> collections.abc.Iterator[tuple[T, U]]: ...
 def join[T, U](
     leftkey: typing.Callable[[T], typing.Hashable],
     leftseq: collections.abc.Iterable[T],
@@ -706,7 +751,7 @@ def join[T, U](
     rightseq: collections.abc.Iterable[U],
     left_default: T | _NoDefaultType = no_default,
     right_default: U | _NoDefaultType = no_default,
-) -> collections.abc.Iterator[tuple[T | U, T | U]]:
+) -> collections.abc.Iterator[tuple[T, U]]:
     """Join two sequences on common attributes
 
     This is a semi-streaming operation.  The LEFT sequence is fully evaluated
@@ -767,6 +812,17 @@ def join[T, U](
     """
     ...
 
+@typing.overload
+def diff[T](
+    *seqs: collections.abc.Iterable[T],
+    key: typing.Callable[[T], typing.Any] | None = None,
+) -> collections.abc.Iterator[tuple[T, ...]]: ...
+@typing.overload
+def diff[T](
+    *seqs: collections.abc.Iterable[T],
+    default: T,
+    key: typing.Callable[[T], typing.Any] | None = None,
+) -> collections.abc.Iterator[tuple[T, ...]]: ...
 def diff[T](
     *seqs: collections.abc.Iterable[T],
     default: T | _NoDefaultType = no_default,

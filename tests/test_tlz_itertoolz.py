@@ -341,6 +341,6 @@ def test_join() -> None:
 
     result = list(tlz.join(left_key, left, right_key, right))
 
-    _ = assert_type(result, list[tuple[tuple[int, int] | tuple[int, int], tuple[int, int] | tuple[int, int]]])
+    _ = assert_type(result, list[tuple[tuple[int, int], tuple[int, int]]])
     assert (1, 10) in [r[0] for r in result]
     assert (1, 100) in [r[1] for r in result]
