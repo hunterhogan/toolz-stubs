@@ -515,7 +515,58 @@ def complement[**P](func: typing.Callable[P, bool]) -> typing.Callable[P, bool]:
     """
     ...
 
-class juxt[**P, T]:
+@typing.overload
+def juxt() -> typing.Callable[..., tuple[()]]: ...
+@typing.overload
+def juxt[**P, T0](
+    fn_0: typing.Callable[P, T0],
+) -> typing.Callable[P, tuple[T0]]: ...
+@typing.overload
+def juxt[**P, T0, T1](
+    fn_0: typing.Callable[P, T0],
+    fn_1: typing.Callable[P, T1],
+) -> typing.Callable[P, tuple[T0, T1]]: ...
+@typing.overload
+def juxt[**P, T0, T1, T2](
+    fn_0: typing.Callable[P, T0],
+    fn_1: typing.Callable[P, T1],
+    fn_2: typing.Callable[P, T2],
+) -> typing.Callable[P, tuple[T0, T1, T2]]: ...
+@typing.overload
+def juxt[**P, T0, T1, T2, T3](
+    fn_0: typing.Callable[P, T0],
+    fn_1: typing.Callable[P, T1],
+    fn_2: typing.Callable[P, T2],
+    fn_3: typing.Callable[P, T3],
+) -> typing.Callable[P, tuple[T0, T1, T2, T3]]: ...
+@typing.overload
+def juxt[**P, T0, T1, T2, T3, T4](
+    fn_0: typing.Callable[P, T0],
+    fn_1: typing.Callable[P, T1],
+    fn_2: typing.Callable[P, T2],
+    fn_3: typing.Callable[P, T3],
+    fn_4: typing.Callable[P, T4],
+) -> typing.Callable[P, tuple[T0, T1, T2, T3, T4]]: ...
+@typing.overload
+def juxt[**P, T0, T1, T2, T3, T4, T5](
+    fn_0: typing.Callable[P, T0],
+    fn_1: typing.Callable[P, T1],
+    fn_2: typing.Callable[P, T2],
+    fn_3: typing.Callable[P, T3],
+    fn_4: typing.Callable[P, T4],
+    fn_5: typing.Callable[P, T5],
+) -> typing.Callable[P, tuple[T0, T1, T2, T3, T4, T5]]: ...
+@typing.overload
+def juxt[**P, T](
+    funcs: collections.abc.Iterable[typing.Callable[P, T]],
+) -> typing.Callable[P, tuple[T, ...]]: ...
+@typing.overload
+def juxt[**P, T](
+    *funcs: typing.Callable[P, T],
+) -> typing.Callable[P, tuple[T, ...]]: ...
+def juxt[**P, T](
+    *funcs: typing.Callable[P, T] | collections.abc.Iterable[typing.Callable[P, T]],
+) -> typing.Callable[P, tuple[T, ...]]:
     """Creates a function that calls several functions with the same arguments
 
     Takes several functions and returns a function that applies its arguments
@@ -531,12 +582,7 @@ class juxt[**P, T]:
     >>> juxt([inc, double])(10)
     (11, 20)
     """
-
-    def __init__(self, *funcs: typing.Callable[P, T]) -> None: ...
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> tuple[T, ...]: ...
-    @typing.override
-    def __getstate__(self) -> tuple[typing.Callable[P, T], ...]: ...
-    def __setstate__(self, state: tuple[typing.Callable[P, T], ...]) -> None: ...
+    ...
 
 def do[T](func: typing.Callable[[T], typing.Any], x: T) -> T:
     """Runs ``func`` on ``x``, returns ``x``
