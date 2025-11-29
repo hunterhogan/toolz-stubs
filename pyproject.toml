@@ -19,10 +19,7 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Typing :: Stubs Only",
 ]
-dependencies = [
-    "toolz~=1.0",
-    "typing-extensions>=4.10.0", # TypeIs
-]
+dependencies = ["toolz~=1.0"]
 
 [project.urls]
 Homepage = "https://github.com/mgrinshpon/toolz-stubs"
