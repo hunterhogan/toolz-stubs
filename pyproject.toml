@@ -20,8 +20,7 @@ classifiers = [
     "Typing :: Stubs Only",
 ]
 dependencies = [
-    "toolz~=1.0",
-    "typing-extensions>=4.10.0", # TypeIs
+    "toolz~=1.0", # TypeIs
 ]
 
 [project.urls]
