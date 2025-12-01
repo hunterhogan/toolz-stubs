@@ -1,10 +1,9 @@
-# pyright: reportUnusedImport=false, reportAny=false
+# pyright: reportAny=false, reportUnreachable=false
 # According to PEP561, file structure should mirror the package structure
 # That's why this is in curried/__init__.pyi and not just curried.pyi
 import collections.abc
+import sys
 import typing
-
-from typing_extensions import TypeIs
 
 import toolz
 from toolz import (
@@ -35,6 +34,11 @@ from toolz import (
     thread_first as thread_first,
     thread_last as thread_last,
 )
+
+if sys.version_info >= (3, 13):
+    from typing import TypeIs
+else:
+    from typing_extensions import TypeIs
 
 # All functions from operator module are re-exported here.
 # Binary and n-ary functions are curried; unary functions are not.

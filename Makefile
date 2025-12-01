@@ -1,7 +1,7 @@
 .PHONY: sync check test lint format build clean
 
 sync:
-	uv sync --no-editable --reinstall-package toolz-stubs
+	uv sync --exact --no-editable --reinstall-package toolz-stubs
 
 check: sync
 	uv run --no-editable basedpyright
