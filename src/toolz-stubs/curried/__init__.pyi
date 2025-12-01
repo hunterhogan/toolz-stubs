@@ -1,44 +1,58 @@
 # pyright: reportAny=false, reportUnreachable=false
-# According to PEP561, file structure should mirror the package structure
-# That's why this is in curried/__init__.pyi and not just curried.pyi
+"""
+Stubs for toolz.curried - an alternate namespace where functions are curried.
+
+This module uses three patterns:
+1. Direct re-exports: Non-curried functions imported from relative modules.
+2. Explicit overloads: Curried functions with bespoke type signatures for precise inference
+    (e.g., accumulate, assoc, do, filter, map).
+3. Curry wrappers: Curried functions using curry(module.func).
+    Placeholders until explicit overloads are added.
+    See https://github.com/mgrinshpon/toolz-stubs/issues/16 to help.
+"""
+
 import collections.abc
+import functools
 import sys
 import typing
-
-import toolz
-from toolz import (
-    apply as apply,
-    comp as comp,
-    complement as complement,
-    compose as compose,
-    compose_left as compose_left,
-    concat as concat,
-    concatv as concatv,
-    count as count,
-    curry as curry,
-    diff as diff,
-    first as first,
-    flip as flip,
-    frequencies as frequencies,
-    identity as identity,
-    interleave as interleave,
-    isdistinct as isdistinct,
-    isiterable as isiterable,
-    juxt as juxt,
-    last as last,
-    memoize as memoize,
-    merge_sorted as merge_sorted,
-    peek as peek,
-    pipe as pipe,
-    second as second,
-    thread_first as thread_first,
-    thread_last as thread_last,
-)
 
 if sys.version_info >= (3, 13):
     from typing import TypeIs
 else:
     from typing_extensions import TypeIs
+
+from .. import dicttoolz as _dicttoolz, itertoolz as _itertoolz, recipes as _recipes
+from ..functoolz import (
+    apply as apply,
+    complement as complement,
+    compose as comp,
+    compose as compose,
+    compose_left as compose_left,
+    curry as curry,
+    excepts as _excepts_class,
+    flip as flip,
+    identity as identity,
+    juxt as juxt,
+    memoize as memoize,
+    pipe as pipe,
+    thread_first as thread_first,
+    thread_last as thread_last,
+)
+from ..itertoolz import (
+    concat as concat,
+    concatv as concatv,
+    count as count,
+    diff as diff,
+    first as first,
+    frequencies as frequencies,
+    interleave as interleave,
+    isdistinct as isdistinct,
+    isiterable as isiterable,
+    last as last,
+    merge_sorted as merge_sorted,
+    peek as peek,
+    second as second,
+)
 
 # All functions from operator module are re-exported here.
 # Binary and n-ary functions are curried; unary functions are not.
@@ -91,7 +105,7 @@ __all__ = [
     "update_in",
     "valfilter",
     "valmap",
-    # Re-exported from toolz (not curried)
+    # Re-exported (not curried)
     "apply",
     "comp",
     "complement",
@@ -274,7 +288,7 @@ def assoc[K, V](
     """
     ...
 
-assoc_in = toolz.curry(toolz.assoc_in)
+assoc_in = curry(_dicttoolz.assoc_in)
 
 # Curried cons with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
@@ -322,8 +336,8 @@ def cons[T](
     """
     ...
 
-countby = toolz.curry(toolz.countby)
-dissoc = toolz.curry(toolz.dissoc)
+countby = curry(_recipes.countby)
+dissoc = curry(_dicttoolz.dissoc)
 
 # Curried do with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
@@ -414,15 +428,15 @@ def drop[T](
     ...
 
 @typing.overload
-def excepts[T, **P]() -> typing.Callable[..., toolz.excepts[T, P]]: ...
+def excepts[T, **P]() -> typing.Callable[..., _excepts_class[T, P]]: ...
 @typing.overload
 def excepts[T, **P](
     exc: type[Exception] | tuple[type[Exception], ...], /
 ) -> (
-    typing.Callable[[typing.Callable[P, T]], toolz.excepts[T, P]]
+    typing.Callable[[typing.Callable[P, T]], _excepts_class[T, P]]
     | typing.Callable[
         [typing.Callable[P, T], typing.Callable[[Exception], T]],
-        toolz.excepts[T, P],
+        _excepts_class[T, P],
     ]
 ): ...
 @typing.overload
@@ -430,19 +444,19 @@ def excepts[T, **P](
     exc: type[Exception] | tuple[type[Exception], ...],
     func: typing.Callable[P, T],
     /,
-) -> toolz.excepts[T, P]: ...
+) -> _excepts_class[T, P]: ...
 @typing.overload
 def excepts[T, **P](
     exc: type[Exception] | tuple[type[Exception], ...],
     func: typing.Callable[P, T],
     handler: typing.Callable[[Exception], T],
     /,
-) -> toolz.excepts[T, P]: ...
+) -> _excepts_class[T, P]: ...
 def excepts[T, **P](
     exc: type[Exception] | tuple[type[Exception], ...] = ...,
     func: typing.Callable[P, T] = ...,
     handler: typing.Callable[[Exception], T] | None = ...,
-) -> toolz.excepts[T, P] | typing.Callable[..., toolz.excepts[T, P]]:
+) -> _excepts_class[T, P] | typing.Callable[..., _excepts_class[T, P]]:
     """Curried version of excepts
 
     A wrapper around a function to catch exceptions and dispatch to a handler.
@@ -654,7 +668,7 @@ def get[T](
     """
     ...
 
-get_in = toolz.curry(toolz.get_in)
+get_in = curry(_dicttoolz.get_in)
 
 @typing.overload
 def groupby[KT, T]() -> typing.Callable[..., dict[KT, list[T]]]: ...
@@ -963,7 +977,7 @@ def iterate[T](
     """
     ...
 
-join = toolz.curry(toolz.join)
+join = curry(_itertoolz.join)
 
 # Curried keyfilter with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
@@ -1343,7 +1357,7 @@ def nth[T](
     """
     ...
 
-partial = toolz.curry(toolz.partial)
+partial = curry(functools.partial)
 
 @typing.overload
 def partition[T]() -> typing.Callable[..., collections.abc.Iterator[tuple[T, ...]]]: ...
@@ -1480,8 +1494,8 @@ def partition_all[T](
     """
     ...
 
-partitionby = toolz.curry(toolz.partitionby)
-peekn = toolz.curry(toolz.peekn)
+partitionby = curry(_recipes.partitionby)
+peekn = curry(_itertoolz.peekn)
 
 @typing.overload
 def pluck[T]() -> typing.Callable[
@@ -1613,7 +1627,7 @@ def pluck[T](
     """
     ...
 
-random_sample = toolz.curry(toolz.random_sample)
+random_sample = curry(_itertoolz.random_sample)
 
 @typing.overload
 def reduce[T]() -> typing.Callable[..., T]: ...
@@ -1664,7 +1678,7 @@ def reduce[T, S](
     """
     ...
 
-reduceby = toolz.curry(toolz.reduceby)
+reduceby = curry(_itertoolz.reduceby)
 
 # Curried remove with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
@@ -2028,9 +2042,9 @@ def take_nth[T](
     """
     ...
 
-topk = toolz.curry(toolz.topk)
-unique = toolz.curry(toolz.unique)
-update_in = toolz.curry(toolz.update_in)
+topk = curry(_itertoolz.topk)
+unique = curry(_itertoolz.unique)
+update_in = curry(_dicttoolz.update_in)
 
 @typing.overload
 def valfilter[K, V]() -> typing.Callable[
