@@ -48,7 +48,7 @@ type _NoDefaultType = typing.Literal["__no_default__"]
 type _NoPadType = typing.Literal["__no_pad__"]
 
 class _Comparable(typing.Protocol):
-    def __lt__(self, other: _Comparable) -> bool: ...
+    def __lt__(self, other: typing.Any, /) -> bool: ...
 
 class _Randomable(typing.Protocol):
     def random(self) -> float: ...
@@ -310,7 +310,7 @@ def rest[T](seq: collections.abc.Iterable[T]) -> collections.abc.Iterable[T]:
 
 @typing.overload
 def get[T](
-    ind: collections.abc.Sequence[typing.Any],
+    ind: list[typing.Any],
     seq: collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T],
     default: T | _NoDefaultType = ...,
 ) -> tuple[T, ...]: ...
@@ -321,7 +321,7 @@ def get[T](
     default: T | _NoDefaultType = ...,
 ) -> T: ...
 def get[T](
-    ind: typing.Any | collections.abc.Sequence[typing.Any],
+    ind: typing.Any | list[typing.Any],
     seq: collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T],
     default: T | _NoDefaultType = no_default,
 ) -> T | tuple[T, ...]:
@@ -390,8 +390,8 @@ def concatv[T](*seqs: collections.abc.Iterable[T]) -> collections.abc.Iterator[T
     ...
 
 def mapcat[T, R](
-    func: typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterable[R]],
-    seqs: collections.abc.Iterable[collections.abc.Iterable[T]],
+    func: typing.Callable[[T], collections.abc.Iterable[R]],
+    seqs: collections.abc.Iterable[T],
 ) -> collections.abc.Iterator[R]:
     """Apply func to each sequence in seqs, concatenating results.
 
@@ -645,7 +645,7 @@ def count(seq: collections.abc.Iterable[typing.Any]) -> int:
 
 @typing.overload
 def pluck[T](
-    ind: collections.abc.Sequence[typing.Any],
+    ind: list[typing.Any],
     seqs: collections.abc.Iterable[
         collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
     ],
@@ -660,7 +660,7 @@ def pluck[T](
     default: T | _NoDefaultType = ...,
 ) -> collections.abc.Iterator[T]: ...
 def pluck[T](
-    ind: typing.Any | collections.abc.Sequence[typing.Any],
+    ind: typing.Any | list[typing.Any],
     seqs: collections.abc.Iterable[
         collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
     ],
