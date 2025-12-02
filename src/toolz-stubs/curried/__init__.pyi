@@ -1272,27 +1272,20 @@ def mapcat[T, R]() -> typing.Callable[
 ]: ...
 @typing.overload
 def mapcat[T, R](
-    func: typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterable[R]], /
-) -> typing.Callable[
-    [collections.abc.Iterable[collections.abc.Iterable[T]]], collections.abc.Iterator[R]
-]: ...
+    func: typing.Callable[[T], collections.abc.Iterable[R]], /
+) -> typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[R]]: ...
 @typing.overload
 def mapcat[T, R](
-    func: typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterable[R]],
-    seqs: collections.abc.Iterable[collections.abc.Iterable[T]],
+    func: typing.Callable[[T], collections.abc.Iterable[R]],
+    seqs: collections.abc.Iterable[T],
     /,
 ) -> collections.abc.Iterator[R]: ...
 def mapcat[T, R](
-    func: typing.Callable[
-        [collections.abc.Iterable[T]], collections.abc.Iterable[R]
-    ] = ...,
-    seqs: collections.abc.Iterable[collections.abc.Iterable[T]] = ...,
+    func: typing.Callable[[T], collections.abc.Iterable[R]] = ...,
+    seqs: collections.abc.Iterable[T] = ...,
 ) -> (
     collections.abc.Iterator[R]
-    | typing.Callable[
-        [collections.abc.Iterable[collections.abc.Iterable[T]]],
-        collections.abc.Iterator[R],
-    ]
+    | typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[R]]
     | typing.Callable[
         ...,
         collections.abc.Iterator[R] | typing.Callable[..., collections.abc.Iterator[R]],

@@ -1,8 +1,26 @@
 """Tests for toolz.curried to verify stubs work correctly."""
 
+from collections.abc import Iterator
 from typing import assert_type
 
 import toolz.curried as curr
+
+
+class TestMapcat:
+    """Tests for curried mapcat function."""
+
+    def test_can_expand(self) -> None:
+        """mapcat should work with functions that expand elements."""
+
+        def possibly_expands(item: int | list[int]) -> list[int]:
+            if isinstance(item, int):
+                return [item, item]
+            return item
+
+        result = curr.mapcat(possibly_expands, [1, [2, 3], 4])
+
+        _ = assert_type(result, Iterator[int])
+        assert list(result) == [1, 1, 2, 3, 4, 4]
 
 
 def test_basic_curry_func() -> None:
