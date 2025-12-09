@@ -432,50 +432,50 @@ def compose_left(
     ...
 
 @typing.overload
-def pipe[**P, T](
-    data: T,
-    fn_0: typing.Callable[P, T],
-) -> T: ...
-@typing.overload
-def pipe[**P, T0, T1](
+def pipe[T0, T1](
     data: T0,
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[[T0], T1],
+    fn_0: typing.Callable[[T0], T1],
 ) -> T1: ...
 @typing.overload
-def pipe[**P, T0, T1, T2](
+def pipe[T0, T1, T2](
     data: T0,
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[[T0], T1],
-    fn_2: typing.Callable[[T1], T2],
+    fn_0: typing.Callable[[T0], T1],
+    fn_1: typing.Callable[[T1], T2],
 ) -> T2: ...
 @typing.overload
-def pipe[**P, T0, T1, T2, T3](
+def pipe[T0, T1, T2, T3](
     data: T0,
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[[T0], T1],
-    fn_2: typing.Callable[[T1], T2],
-    fn_3: typing.Callable[[T2], T3],
+    fn_0: typing.Callable[[T0], T1],
+    fn_1: typing.Callable[[T1], T2],
+    fn_2: typing.Callable[[T2], T3],
 ) -> T3: ...
 @typing.overload
-def pipe[**P, T0, T1, T2, T3, T4](
+def pipe[T0, T1, T2, T3, T4](
     data: T0,
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[[T0], T1],
-    fn_2: typing.Callable[[T1], T2],
-    fn_3: typing.Callable[[T2], T3],
-    fn_4: typing.Callable[[T3], T4],
+    fn_0: typing.Callable[[T0], T1],
+    fn_1: typing.Callable[[T1], T2],
+    fn_2: typing.Callable[[T2], T3],
+    fn_3: typing.Callable[[T3], T4],
 ) -> T4: ...
 @typing.overload
-def pipe[**P, T0, T1, T2, T3, T4, T5](
+def pipe[T0, T1, T2, T3, T4, T5](
     data: T0,
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[[T0], T1],
-    fn_2: typing.Callable[[T1], T2],
-    fn_3: typing.Callable[[T2], T3],
-    fn_4: typing.Callable[[T3], T4],
-    fn_5: typing.Callable[[T4], T5],
+    fn_0: typing.Callable[[T0], T1],
+    fn_1: typing.Callable[[T1], T2],
+    fn_2: typing.Callable[[T2], T3],
+    fn_3: typing.Callable[[T3], T4],
+    fn_4: typing.Callable[[T4], T5],
 ) -> T5: ...
+@typing.overload
+def pipe[T0, T1, T2, T3, T4, T5, T6](
+    data: T0,
+    fn_0: typing.Callable[[T0], T1],
+    fn_1: typing.Callable[[T1], T2],
+    fn_2: typing.Callable[[T2], T3],
+    fn_3: typing.Callable[[T3], T4],
+    fn_4: typing.Callable[[T4], T5],
+    fn_5: typing.Callable[[T5], T6],
+) -> T6: ...
 @typing.overload
 def pipe(data: typing.Any, *funcs: typing.Callable[..., typing.Any]) -> typing.Any: ...
 def pipe(data: typing.Any, *funcs: typing.Callable[..., typing.Any]) -> typing.Any:
