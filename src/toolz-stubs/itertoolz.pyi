@@ -306,6 +306,7 @@ def rest[T](seq: collections.abc.Iterable[T]) -> collections.abc.Iterable[T]:
     >>> rest('ABC')
     'BC'
     """
+    # Warning - this function is not exposed via __all__ and should be considered private.
     ...
 
 @typing.overload
@@ -708,7 +709,9 @@ def getter[T](
 ) -> typing.Callable[
     [collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]],
     T | tuple[T, ...],
-]: ...
+]:
+    # Warning - this function is not exposed via __all__ and should be considered private.
+    ...
 
 # TODO implement overloads when leftkey/rightkey are not callables
 @typing.overload
