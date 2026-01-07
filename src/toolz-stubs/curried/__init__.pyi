@@ -16,6 +16,8 @@ import functools
 import sys
 import typing
 
+from _typeshed import SupportsRichComparison
+
 if sys.version_info >= (3, 13):
     from typing import TypeIs
 else:
@@ -138,9 +140,6 @@ __all__ = [
     # Submodule
     "operator",
 ]
-
-class _Comparable(typing.Protocol):
-    def __lt__(self, other: _Comparable) -> bool: ...
 
 # Curried accumulate with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
@@ -1834,7 +1833,7 @@ def sorted[T](
 @typing.overload
 def sorted[T](
     *,
-    key: collections.abc.Callable[[T], _Comparable],
+    key: collections.abc.Callable[[T], SupportsRichComparison],
     reverse: bool = False,
 ) -> collections.abc.Callable[[collections.abc.Iterable[T]], list[T]]: ...
 
@@ -1854,7 +1853,7 @@ def sorted[T](
     iterable: collections.abc.Iterable[T],
     /,
     *,
-    key: collections.abc.Callable[[T], _Comparable],
+    key: collections.abc.Callable[[T], SupportsRichComparison],
     reverse: bool = False,
 ) -> list[T]: ...
 
@@ -1863,7 +1862,7 @@ def sorted[T](
     iterable: collections.abc.Iterable[T] = ...,
     /,
     *,
-    key: collections.abc.Callable[[T], _Comparable] | None = None,
+    key: collections.abc.Callable[[T], SupportsRichComparison] | None = None,
     reverse: bool = False,
 ) -> list[T] | typing.Callable[..., list[T]]:
     """Curried version of builtin sorted

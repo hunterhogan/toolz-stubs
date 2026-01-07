@@ -33,3 +33,15 @@ def test_basic_curry_func() -> None:
 
     _ = assert_type(a_result, list[str])
     assert a_result == ["1", "2", "3", "4", "5"]
+
+
+class TestSorted:
+    def test_can_type_comparable(self) -> None:
+        """From https://github.com/mgrinshpon/toolz-stubs/issues/34"""
+
+        def mod_3(x: int) -> int:
+            return x % 3
+
+        result = curr.pipe(range(10), curr.sorted(key=mod_3), list)
+        _ = assert_type(result, list[int])
+        assert result == [0, 3, 6, 9, 1, 4, 7, 2, 5, 8]
