@@ -2,6 +2,8 @@
 import collections.abc
 import typing
 
+from _typeshed import SupportsRichComparison
+
 from .utils import no_default
 
 __all__ = (
@@ -46,9 +48,6 @@ __all__ = (
 ### Special types for toolz
 type _NoDefaultType = typing.Literal["__no_default__"]
 type _NoPadType = typing.Literal["__no_pad__"]
-
-class _Comparable(typing.Protocol):
-    def __lt__(self, other: typing.Any, /) -> bool: ...
 
 class _Randomable(typing.Protocol):
     def random(self) -> float: ...
@@ -138,7 +137,7 @@ def groupby[KT, T](
     """
     ...
 
-def merge_sorted[CT: _Comparable](
+def merge_sorted[CT: SupportsRichComparison](
     *seqs: collections.abc.Iterable[CT], key: typing.Callable[[CT], CT] | None = None
 ) -> collections.abc.Iterator[CT]:
     """Merge and sort a collection of sorted collections
@@ -852,7 +851,7 @@ def diff[T](
 def topk[T](
     k: int,
     seq: collections.abc.Iterable[T],
-    key: typing.Callable[[T], _Comparable] | None = None,
+    key: typing.Callable[[T], SupportsRichComparison] | None = None,
 ) -> tuple[T, ...]:
     """Find the k largest elements of a sequence
 
