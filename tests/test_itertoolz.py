@@ -623,28 +623,89 @@ class TestJoin:
 
     # TODO #15
     # https://github.com/mgrinshpon/toolz-stubs/issues/15
-    # def test_outer(self) -> None:
-    #     """join with outer join using defaults."""
+    def test_outer(self) -> None:
+        """join with outer join using defaults."""
 
-    #     def identity(x: int) -> int:
-    #         return x
+        def identity(x: int) -> int:
+            return x
 
-    #     result = it.join(
-    #         identity,
-    #         [1, 2, 3],
-    #         identity,
-    #         [2, 3, 4],
-    #         left_default=None,
-    #         right_default=None,
-    #     )
+        result = it.join(
+            identity,
+            [1, 2, 3],
+            identity,
+            [2, 3, 4],
+            left_default=None,
+            right_default=None,
+        )
 
-    #     _ = assert_type(result, Iterator[tuple[int | None, int | None]])
-    #     result_list = list(result)
+        _ = assert_type(result, Iterator[tuple[int | None, int | None]])
+        result_list = list(result)
 
-    #     assert (2, 2) in result_list
-    #     assert (3, 3) in result_list
-    #     assert (None, 4) in result_list
-    #     assert (1, None) in result_list
+        assert (2, 2) in result_list
+        assert (3, 3) in result_list
+        assert (None, 4) in result_list
+        assert (1, None) in result_list
+
+    def test_integer_keys(self) -> None:
+        """join with integer keys instead of callables."""
+        squares = [(0, 0), (1, 1), (2, 4), (3, 9)]
+        cubes = [(0, 0), (1, 1), (2, 8), (3, 27)]
+        result = it.join(0, squares, 0, cubes)
+
+        _ = assert_type(result, Iterator[tuple[tuple[int, int], tuple[int, int]]])
+        result_set = set(result)
+        assert ((0, 0), (0, 0)) in result_set
+        assert ((1, 1), (1, 1)) in result_set
+
+    def test_string_keys(self) -> None:
+        """join with string keys for dict access."""
+        left = [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}]
+        right = [{"id": 1, "city": "NYC"}, {"id": 3, "city": "LA"}]
+        result = it.join("id", left, "id", right)
+
+        _ = assert_type(
+            result, Iterator[tuple[dict[str, str | int], dict[str, str | int]]]
+        )
+        result_list = list(result)
+        assert len(result_list) == 1  # Only id=1 matches
+
+    def test_left_join(self) -> None:
+        """join with right_default produces left outer join."""
+
+        def identity(x: int) -> int:
+            return x
+
+        result = it.join(
+            identity,
+            [1, 2, 3],
+            identity,
+            [2, 3, 4],
+            right_default=None,
+        )
+
+        _ = assert_type(result, Iterator[tuple[int, int | None]])
+        result_list = list(result)
+        assert (1, None) in result_list
+        assert (2, 2) in result_list
+
+    def test_right_join(self) -> None:
+        """join with left_default produces right outer join."""
+
+        def identity(x: int) -> int:
+            return x
+
+        result = it.join(
+            identity,
+            [1, 2, 3],
+            identity,
+            [2, 3, 4],
+            left_default=None,
+        )
+
+        _ = assert_type(result, Iterator[tuple[int | None, int]])
+        result_list = list(result)
+        assert (None, 4) in result_list
+        assert (2, 2) in result_list
 
 
 class TestDiff:
