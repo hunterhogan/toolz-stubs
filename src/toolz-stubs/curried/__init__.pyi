@@ -976,7 +976,136 @@ def iterate[T](
     """
     ...
 
-join = curry(_itertoolz.join)
+# Curried join with explicit overloads for type safety
+# Stage 0: No arguments - returns a callable
+@typing.overload
+def join[T, U]() -> typing.Callable[..., collections.abc.Iterator[tuple[T, U]]]: ...
+
+# Stage 1: Just leftkey - returns a callable
+@typing.overload
+def join[T, U](
+    leftkey: typing.Callable[[T], typing.Hashable], /
+) -> typing.Callable[..., collections.abc.Iterator[tuple[T, U]]]: ...
+
+# Stage 2: leftkey + leftseq - returns a callable
+@typing.overload
+def join[T, U](
+    leftkey: typing.Callable[[T], typing.Hashable],
+    leftseq: collections.abc.Iterable[T],
+    /,
+) -> typing.Callable[..., collections.abc.Iterator[tuple[T, U]]]: ...
+
+# Stage 3: leftkey + leftseq + rightkey - returns callable waiting for rightseq
+# This is the key overload for pipe usage!
+# Note: We use Any for U because U can't be inferred until rightseq is provided.
+# The callable will properly infer types when called with rightseq.
+@typing.overload
+def join[T](
+    leftkey: typing.Callable[[T], typing.Hashable],
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Callable[..., typing.Hashable],
+    /,
+) -> typing.Callable[
+    [collections.abc.Iterable[typing.Any]],
+    collections.abc.Iterator[tuple[T, typing.Any]],
+]: ...
+
+# Stage 4a: Full application (inner join) - executes immediately
+@typing.overload
+def join[T, U](
+    leftkey: typing.Callable[[T], typing.Hashable],
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Callable[[U], typing.Hashable],
+    rightseq: collections.abc.Iterable[U],
+    /,
+) -> collections.abc.Iterator[tuple[T, U]]: ...
+
+# Stage 4b: Full application with left_default only (right outer join)
+@typing.overload
+def join[T, U, L](
+    leftkey: typing.Callable[[T], typing.Hashable],
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Callable[[U], typing.Hashable],
+    rightseq: collections.abc.Iterable[U],
+    /,
+    left_default: L,
+) -> collections.abc.Iterator[tuple[T | L, U]]: ...
+
+# Stage 4c: Full application with right_default only (left outer join)
+@typing.overload
+def join[T, U, R](
+    leftkey: typing.Callable[[T], typing.Hashable],
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Callable[[U], typing.Hashable],
+    rightseq: collections.abc.Iterable[U],
+    /,
+    *,
+    right_default: R,
+) -> collections.abc.Iterator[tuple[T, U | R]]: ...
+
+# Stage 4d: Full application with both defaults (full outer join)
+@typing.overload
+def join[T, U, L, R](
+    leftkey: typing.Callable[[T], typing.Hashable],
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Callable[[U], typing.Hashable],
+    rightseq: collections.abc.Iterable[U],
+    /,
+    left_default: L,
+    right_default: R,
+) -> collections.abc.Iterator[tuple[T | L, U | R]]: ...
+
+# Stage 3 with defaults: leftkey + leftseq + rightkey + defaults - returns callable
+@typing.overload
+def join[T, U, L, R](
+    leftkey: typing.Callable[[T], typing.Hashable],
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Callable[[U], typing.Hashable],
+    /,
+    left_default: L,
+    right_default: R,
+) -> typing.Callable[
+    [collections.abc.Iterable[U]], collections.abc.Iterator[tuple[T | L, U | R]]
+]: ...
+
+# Implementation signature
+def join[T, U, L, R](
+    leftkey: typing.Callable[[T], typing.Hashable] | typing.Hashable = ...,
+    leftseq: collections.abc.Iterable[T] = ...,
+    rightkey: typing.Callable[[U], typing.Hashable] | typing.Hashable = ...,
+    rightseq: collections.abc.Iterable[U] = ...,
+    left_default: L = ...,
+    right_default: R = ...,
+) -> (
+    collections.abc.Iterator[tuple[T | L, U | R]]
+    | typing.Callable[..., collections.abc.Iterator[tuple[T | L, U | R]]]
+):
+    """Curried version of join
+
+    Join two sequences on common attributes.
+
+    This is a semi-streaming operation. The LEFT sequence is fully evaluated
+    and placed into memory. The RIGHT sequence is evaluated lazily.
+
+    >>> from toolz.curried import join, pipe, second, first
+    >>> friends = [('Alice', 'Edith'), ('Bob', 'Alice')]
+    >>> cities = [('Alice', 'NYC'), ('Edith', 'Paris')]
+
+    Can be partially applied for use in pipes:
+    >>> find_friend_cities = join(second, friends, first)
+    >>> list(pipe(cities, find_friend_cities))  # doctest: +SKIP
+    [(('Alice', 'Edith'), ('Edith', 'Paris'))]
+
+    Full outer join with defaults:
+    >>> identity = lambda x: x
+    >>> list(join(identity, [1, 2], identity, [2, 3],
+    ...           left_default=None, right_default=None))
+    [(2, 2), (None, 3), (1, None)]
+
+    See Also:
+        itertoolz.join
+    """
+    ...
 
 # Curried keyfilter with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable

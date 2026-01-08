@@ -1,7 +1,7 @@
 """Tests for toolz.curried to verify stubs work correctly."""
 
 from collections.abc import Iterator
-from typing import assert_type
+from typing import Any, assert_type
 
 import toolz.curried as curr
 
@@ -45,3 +45,58 @@ class TestSorted:
         result = curr.pipe(range(10), curr.sorted(key=mod_3), list)
         _ = assert_type(result, list[int])
         assert result == [0, 3, 6, 9, 1, 4, 7, 2, 5, 8]
+
+
+class TestJoin:
+    """Tests for curried join function."""
+
+    def test_partial_application_in_pipe(self) -> None:
+        """join can be partially applied for use in pipes.
+
+        Common pattern: pre-configure join with keys and left sequence,
+        then pipe the right sequence through.
+        """
+        friends = [
+            ("Alice", "Edith"),
+            ("Bob", "Alice"),
+        ]
+        cities = [
+            ("Alice", "NYC"),
+            ("Edith", "Paris"),
+        ]
+
+        # Partially apply: "find cities where my friends live"
+        # join(second, friends, first) returns a callable waiting for rightseq
+        find_friend_cities = curr.join(curr.second, friends, curr.first)
+
+        result = curr.pipe(
+            cities,
+            find_friend_cities,
+            list,
+        )
+
+        # Note: The right side is Any because U can't be inferred in partial application
+        # (rightseq isn't provided yet when join(leftkey, leftseq, rightkey) is called)
+        _ = assert_type(result, list[tuple[tuple[str, str], Any]])  # pyright: ignore[reportExplicitAny]
+        assert (("Alice", "Edith"), ("Edith", "Paris")) in result
+
+    def test_outer_join_with_defaults(self) -> None:
+        """join with defaults for outer join behavior."""
+
+        def identity(x: int) -> int:
+            return x
+
+        left = [1, 2, 3]
+        right = [2, 3, 4]
+
+        # Full outer join - unmatched items paired with None
+        result = curr.pipe(
+            right,
+            curr.join(identity, left, identity, left_default=None, right_default=None),
+            list,
+        )
+
+        _ = assert_type(result, list[tuple[int | None, int | None]])
+        assert (2, 2) in result
+        assert (None, 4) in result  # 4 not in left
+        assert (1, None) in result  # 1 not in right

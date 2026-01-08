@@ -746,6 +746,7 @@ def join[T, U, L, R](
     left_default: L,
     right_default: R,
 ) -> collections.abc.Iterator[tuple[T | L, U | R]]: ...
+
 # === HASHABLE + CALLABLE (4 overloads) ===
 @typing.overload
 def join[T, U](
@@ -780,6 +781,7 @@ def join[T, U, L, R](
     left_default: L,
     right_default: R,
 ) -> collections.abc.Iterator[tuple[T | L, U | R]]: ...
+
 # === CALLABLE + HASHABLE (4 overloads) ===
 @typing.overload
 def join[T, U](
@@ -814,6 +816,7 @@ def join[T, U, L, R](
     left_default: L,
     right_default: R,
 ) -> collections.abc.Iterator[tuple[T | L, U | R]]: ...
+
 # === HASHABLE + HASHABLE (4 overloads) ===
 @typing.overload
 def join[T, U](
@@ -848,6 +851,7 @@ def join[T, U, L, R](
     left_default: L,
     right_default: R,
 ) -> collections.abc.Iterator[tuple[T | L, U | R]]: ...
+
 # Implementation signature
 def join[T, U, L, R](
     leftkey: typing.Callable[[T], typing.Hashable] | typing.Hashable,
