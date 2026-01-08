@@ -712,7 +712,7 @@ def getter[T](
     # Warning - this function is not exposed via __all__ and should be considered private.
     ...
 
-# TODO implement overloads when leftkey/rightkey are not callables
+# === CALLABLE + CALLABLE (4 overloads) ===
 @typing.overload
 def join[T, U](
     leftkey: typing.Callable[[T], typing.Hashable],
@@ -721,39 +721,146 @@ def join[T, U](
     rightseq: collections.abc.Iterable[U],
 ) -> collections.abc.Iterator[tuple[T, U]]: ...
 @typing.overload
-def join[T, U](
+def join[T, U, L](
     leftkey: typing.Callable[[T], typing.Hashable],
     leftseq: collections.abc.Iterable[T],
     rightkey: typing.Callable[[U], typing.Hashable],
     rightseq: collections.abc.Iterable[U],
-    left_default: T,
-) -> collections.abc.Iterator[tuple[T, U]]: ...
+    left_default: L,
+) -> collections.abc.Iterator[tuple[T | L, U]]: ...
 @typing.overload
-def join[T, U](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
-    rightseq: collections.abc.Iterable[U],
-    left_default: T,
-    right_default: U,
-) -> collections.abc.Iterator[tuple[T, U]]: ...
-@typing.overload
-def join[T, U](
+def join[T, U, R](
     leftkey: typing.Callable[[T], typing.Hashable],
     leftseq: collections.abc.Iterable[T],
     rightkey: typing.Callable[[U], typing.Hashable],
     rightseq: collections.abc.Iterable[U],
     *,
-    right_default: U,
-) -> collections.abc.Iterator[tuple[T, U]]: ...
-def join[T, U](
+    right_default: R,
+) -> collections.abc.Iterator[tuple[T, U | R]]: ...
+@typing.overload
+def join[T, U, L, R](
     leftkey: typing.Callable[[T], typing.Hashable],
     leftseq: collections.abc.Iterable[T],
     rightkey: typing.Callable[[U], typing.Hashable],
     rightseq: collections.abc.Iterable[U],
-    left_default: T | _NoDefaultType = no_default,
-    right_default: U | _NoDefaultType = no_default,
-) -> collections.abc.Iterator[tuple[T, U]]:
+    left_default: L,
+    right_default: R,
+) -> collections.abc.Iterator[tuple[T | L, U | R]]: ...
+
+# === HASHABLE + CALLABLE (4 overloads) ===
+@typing.overload
+def join[T, U](
+    leftkey: typing.Hashable,
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Callable[[U], typing.Hashable],
+    rightseq: collections.abc.Iterable[U],
+) -> collections.abc.Iterator[tuple[T, U]]: ...
+@typing.overload
+def join[T, U, L](
+    leftkey: typing.Hashable,
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Callable[[U], typing.Hashable],
+    rightseq: collections.abc.Iterable[U],
+    left_default: L,
+) -> collections.abc.Iterator[tuple[T | L, U]]: ...
+@typing.overload
+def join[T, U, R](
+    leftkey: typing.Hashable,
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Callable[[U], typing.Hashable],
+    rightseq: collections.abc.Iterable[U],
+    *,
+    right_default: R,
+) -> collections.abc.Iterator[tuple[T, U | R]]: ...
+@typing.overload
+def join[T, U, L, R](
+    leftkey: typing.Hashable,
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Callable[[U], typing.Hashable],
+    rightseq: collections.abc.Iterable[U],
+    left_default: L,
+    right_default: R,
+) -> collections.abc.Iterator[tuple[T | L, U | R]]: ...
+
+# === CALLABLE + HASHABLE (4 overloads) ===
+@typing.overload
+def join[T, U](
+    leftkey: typing.Callable[[T], typing.Hashable],
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Hashable,
+    rightseq: collections.abc.Iterable[U],
+) -> collections.abc.Iterator[tuple[T, U]]: ...
+@typing.overload
+def join[T, U, L](
+    leftkey: typing.Callable[[T], typing.Hashable],
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Hashable,
+    rightseq: collections.abc.Iterable[U],
+    left_default: L,
+) -> collections.abc.Iterator[tuple[T | L, U]]: ...
+@typing.overload
+def join[T, U, R](
+    leftkey: typing.Callable[[T], typing.Hashable],
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Hashable,
+    rightseq: collections.abc.Iterable[U],
+    *,
+    right_default: R,
+) -> collections.abc.Iterator[tuple[T, U | R]]: ...
+@typing.overload
+def join[T, U, L, R](
+    leftkey: typing.Callable[[T], typing.Hashable],
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Hashable,
+    rightseq: collections.abc.Iterable[U],
+    left_default: L,
+    right_default: R,
+) -> collections.abc.Iterator[tuple[T | L, U | R]]: ...
+
+# === HASHABLE + HASHABLE (4 overloads) ===
+@typing.overload
+def join[T, U](
+    leftkey: typing.Hashable,
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Hashable,
+    rightseq: collections.abc.Iterable[U],
+) -> collections.abc.Iterator[tuple[T, U]]: ...
+@typing.overload
+def join[T, U, L](
+    leftkey: typing.Hashable,
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Hashable,
+    rightseq: collections.abc.Iterable[U],
+    left_default: L,
+) -> collections.abc.Iterator[tuple[T | L, U]]: ...
+@typing.overload
+def join[T, U, R](
+    leftkey: typing.Hashable,
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Hashable,
+    rightseq: collections.abc.Iterable[U],
+    *,
+    right_default: R,
+) -> collections.abc.Iterator[tuple[T, U | R]]: ...
+@typing.overload
+def join[T, U, L, R](
+    leftkey: typing.Hashable,
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Hashable,
+    rightseq: collections.abc.Iterable[U],
+    left_default: L,
+    right_default: R,
+) -> collections.abc.Iterator[tuple[T | L, U | R]]: ...
+
+# Implementation signature
+def join[T, U, L, R](
+    leftkey: typing.Callable[[T], typing.Hashable] | typing.Hashable,
+    leftseq: collections.abc.Iterable[T],
+    rightkey: typing.Callable[[U], typing.Hashable] | typing.Hashable,
+    rightseq: collections.abc.Iterable[U],
+    left_default: L | _NoDefaultType = no_default,
+    right_default: R | _NoDefaultType = no_default,
+) -> collections.abc.Iterator[tuple[T | L, U | R]]:
     """Join two sequences on common attributes
 
     This is a semi-streaming operation.  The LEFT sequence is fully evaluated
