@@ -9,17 +9,17 @@ def merge_with[K, V]() -> typing.Callable[
 ]: ...
 @typing.overload
 def merge_with[K, V](
-    func: typing.Callable[[collections.abc.Iterable[V]], V], /
+    func: typing.Callable[[list[V]], V], /
 ) -> typing.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]: ...
 @typing.overload
 def merge_with[K, V](
-    func: typing.Callable[[collections.abc.Iterable[V]], V],
+    func: typing.Callable[[list[V]], V],
     d: collections.abc.Mapping[K, V],
     /,
 ) -> dict[K, V]: ...
 @typing.overload
 def merge_with[K, V](
-    func: typing.Callable[[collections.abc.Iterable[V]], V],
+    func: typing.Callable[[list[V]], V],
     d: collections.abc.Mapping[K, V],
     d2: collections.abc.Mapping[K, V],
     /,
@@ -27,7 +27,7 @@ def merge_with[K, V](
 ) -> dict[K, V]: ...
 @typing.overload
 def merge_with[K, V](
-    func: typing.Callable[[collections.abc.Iterable[V]], V],
+    func: typing.Callable[[list[V]], V],
     d: collections.abc.Mapping[K, V],
     d2: collections.abc.Mapping[K, V],
     /,
@@ -36,13 +36,13 @@ def merge_with[K, V](
 ) -> collections.abc.MutableMapping[K, V]: ...
 @typing.overload
 def merge_with[K, V](
-    func: typing.Callable[[collections.abc.Iterable[V]], V],
+    func: typing.Callable[[list[V]], V],
     /,
     *,
     factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
 ) -> typing.Callable[..., collections.abc.MutableMapping[K, V]]: ...
 def merge_with[K, V](
-    func: typing.Callable[[collections.abc.Iterable[V]], V] = ...,
+    func: typing.Callable[[list[V]], V] = ...,
     d: collections.abc.Mapping[K, V] = ...,
     *dicts: collections.abc.Mapping[K, V],
     factory: typing.Callable[[], collections.abc.MutableMapping[K, V]] = ...,

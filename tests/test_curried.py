@@ -1,7 +1,7 @@
 """Tests for toolz.curried to verify stubs work correctly."""
 
-from collections.abc import Iterator
-from typing import Any, assert_type
+from collections.abc import Iterable, Iterator
+from typing import Any, Callable, assert_type
 
 import toolz.curried as curr
 
@@ -45,6 +45,38 @@ class TestSorted:
         result = curr.pipe(range(10), curr.sorted(key=mod_3), list)
         _ = assert_type(result, list[int])
         assert result == [0, 3, 6, 9, 1, 4, 7, 2, 5, 8]
+
+
+class TestMergeWith:
+    """Tests for curried merge_with function."""
+
+    def test_with_list_typed_function(self) -> None:
+        """merge_with should accept functions typed as taking list[V].
+
+        This tests the contravariance fix: the runtime passes a list,
+        so functions expecting list[V] should be accepted.
+        """
+        # Explicitly typed as taking list[int], not Iterable[int]
+        sum_list: Callable[[list[int]], int] = sum
+
+        result = curr.merge_with(sum_list, {1: 1, 2: 2}, {1: 10, 2: 20})
+
+        _ = assert_type(result, dict[int, int])
+        assert result == {1: 11, 2: 22}
+
+    def test_with_iterable_typed_function(self) -> None:
+        """merge_with should also accept functions typed as taking Iterable[V].
+
+        Due to contravariance, Callable[[Iterable[V]], V] is a subtype of
+        Callable[[list[V]], V], so this should also work.
+        """
+        # Explicitly typed as taking Iterable[int]
+        sum_iter: Callable[[Iterable[int]], int] = sum
+
+        result = curr.merge_with(sum_iter, {"a": 1, "b": 2}, {"a": 10, "b": 20})
+
+        _ = assert_type(result, dict[str, int])
+        assert result == {"a": 11, "b": 22}
 
 
 class TestJoin:
