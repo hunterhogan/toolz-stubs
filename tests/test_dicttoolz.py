@@ -183,31 +183,30 @@ class TestDissoc:
         assert original == {"x": 1, "y": 2}
 
 
-# TODO: see https://github.com/mgrinshpon/toolz-stubs/issues/37
-# class TestAssocIn:
-#     """Tests for assoc_in function."""
+class TestAssocIn:
+    """Tests for assoc_in function."""
 
-#     def test_nested(self) -> None:
-#         """assoc_in should update nested value."""
-#         purchase = {
-#             "name": "Alice",
-#             "order": {"items": ["Apple", "Orange"], "costs": [0.50, 1.25]},
-#             "credit card": "5555-1234-1234-1234",
-#         }
-#         result = dt.assoc_in(purchase, ("order", "costs"), [0.25, 1.00])
+    def test_nested(self) -> None:
+        """assoc_in should update nested value."""
+        purchase = {
+            "name": "Alice",
+            "order": {"items": ["Apple", "Orange"], "costs": [0.50, 1.25]},
+            "credit card": "5555-1234-1234-1234",
+        }
+        result = dt.assoc_in(purchase, ("order", "costs"), [0.25, 1.00])
 
-#         _ = assert_type(result, dict[str, str | dict[str, list[str] | list[float]]])
-#         assert result["order"]["costs"] == [0.25, 1.00]  # type: ignore[index]
-#         assert result["name"] == "Alice"
+        _ = assert_type(result, dict[str, dict[str, list[str] | list[float]] | str | list[str] | list[float]]) # type: ignore
+        assert result["order"]["costs"] == [0.25, 1.00]  # type: ignore[index]
+        assert result["name"] == "Alice"
 
 
-#     def test_immutable(self) -> None:
-#         """assoc_in should not modify the original dictionary."""
-#         original: dict[str, dict[str, int]] = {"a": {"b": 1}}
-#         result = dt.assoc_in(original, ["a", "b"], 2)
+    def test_immutable(self) -> None:
+        """assoc_in should not modify the original dictionary."""
+        original: dict[str, dict[str, int]] = {"a": {"b": 1}}
+        result = dt.assoc_in(original, ["a", "b"], 2)
 
-#         _ = assert_type(result, dict[str, dict[str, int]])
-#         assert original == {"a": {"b": 1}}
+        _ = assert_type(result, dict[str, dict[str, int] | int])
+        assert original == {"a": {"b": 1}}
 
 
 class TestUpdateIn:
