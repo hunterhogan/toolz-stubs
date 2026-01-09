@@ -327,6 +327,43 @@ def dissoc[K, V](
     """
     ...
 
+# Overloads for nested dictionaries with tuple keys (2-level nesting)
+@typing.overload
+def assoc_in[K1, K2, V1, V2](
+    d: collections.abc.Mapping[K1, collections.abc.Mapping[K2, V2] | V1],
+    keys: tuple[K1, K2],
+    value: V2,
+) -> dict[K1, dict[K2, V2] | V1 | V2]: ...
+@typing.overload
+def assoc_in[K1, K2, V1, V2](
+    d: collections.abc.Mapping[K1, collections.abc.Mapping[K2, V2] | V1],
+    keys: tuple[K1, K2],
+    value: V2,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K1, typing.Any]],
+) -> collections.abc.MutableMapping[K1, typing.Any]: ...
+
+# Overloads for nested dictionaries with tuple keys (3-level nesting)
+@typing.overload
+def assoc_in[K1, K2, K3, V1, V2, V3](
+    d: collections.abc.Mapping[
+        K1, collections.abc.Mapping[K2, collections.abc.Mapping[K3, V3] | V2] | V1
+    ],
+    keys: tuple[K1, K2, K3],
+    value: V3,
+) -> dict[K1, dict[K2, dict[K3, V3] | V2 | V3] | V1 | V3]: ...
+@typing.overload
+def assoc_in[K1, K2, K3, V1, V2, V3](
+    d: collections.abc.Mapping[
+        K1, collections.abc.Mapping[K2, collections.abc.Mapping[K3, V3] | V2] | V1
+    ],
+    keys: tuple[K1, K2, K3],
+    value: V3,
+    *,
+    factory: typing.Callable[[], collections.abc.MutableMapping[K1, typing.Any]],
+) -> collections.abc.MutableMapping[K1, typing.Any]: ...
+
+# General overloads for backwards compatibility
 @typing.overload
 def assoc_in[K, V](
     d: collections.abc.Mapping[K, V],
