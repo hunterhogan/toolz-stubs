@@ -195,10 +195,14 @@ class TestAssocIn:
         }
         result = dt.assoc_in(purchase, ("order", "costs"), [0.25, 1.00])
 
-        _ = assert_type(result, dict[str, dict[str, list[str] | list[float]] | str | list[str] | list[float]]) # type: ignore
-        assert result["order"]["costs"] == [0.25, 1.00]  # type: ignore[index]
+        _ = assert_type(
+            result,
+            dict[
+                str, dict[str, list[str] | list[float]] | str | list[str] | list[float]
+            ],
+        )
+        assert result["order"]["costs"] == [0.25, 1.00]  # pyright: ignore[reportArgumentType,reportCallIssue]
         assert result["name"] == "Alice"
-
 
     def test_immutable(self) -> None:
         """assoc_in should not modify the original dictionary."""

@@ -342,6 +342,7 @@ def assoc_in[K1, K2, V1, V2](
     *,
     factory: typing.Callable[[], collections.abc.MutableMapping[K1, typing.Any]],
 ) -> collections.abc.MutableMapping[K1, typing.Any]: ...
+
 # Overloads for nested dictionaries with tuple keys (3-level nesting)
 @typing.overload
 def assoc_in[K1, K2, K3, V1, V2, V3](
@@ -361,6 +362,7 @@ def assoc_in[K1, K2, K3, V1, V2, V3](
     *,
     factory: typing.Callable[[], collections.abc.MutableMapping[K1, typing.Any]],
 ) -> collections.abc.MutableMapping[K1, typing.Any]: ...
+
 # General overloads for backwards compatibility
 @typing.overload
 def assoc_in[K, V](
