@@ -1,10 +1,10 @@
 # toolz-stubs
 
 [![CI](https://github.com/mgrinshpon/toolz-stubs/actions/workflows/ci.yml/badge.svg)](https://github.com/mgrinshpon/toolz-stubs/actions/workflows/ci.yml)
+[![basedpyright](https://img.shields.io/endpoint?url=https://docs.basedpyright.com/latest/badge.json)](https://docs.basedpyright.com)
+[![pyright](https://img.shields.io/badge/type--checked-pyright-blue)](https://github.com/microsoft/pyright)
 
-Type stubs for [toolz](https://github.com/pytoolz/toolz) and [tlz](https://github.com/pytoolz/toolz/tree/main/tlz) - Python functional programming libraries.
-
-Type hinting for [cytoolz](https://github.com/pytoolz/cytoolz) is available via [tlz](https://github.com/pytoolz/toolz/tree/main/tlz).
+Type stubs for [toolz](https://github.com/pytoolz/toolz) and [tlz](https://github.com/pytoolz/toolz/tree/master/tlz) - Python functional programming libraries.
 
 ## Installation
 
@@ -20,25 +20,30 @@ Once installed, type checkers like mypy, pyright, or basedpyright will automatic
 
 ```python
 import toolz
-from toolz import curry, compose, pipe
 
-@curry
-def add(x: int, y: int) -> int:
-    return x + y
+bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
+totals = toolz.valmap(sum, bills)  # dict[str, int]
 
-# Type checkers will understand these operations
-add_five = add(5)  # Correctly typed as partial function
-result = add_five(3)  # Type checked as int
+even_entries = toolz.keyfilter(lambda k: k % 2 == 0, {1: "a", 2: "b", 3: "c"})  # dict[int, str]
+
+names = ["Alice", "Bob", "Charlie", "Anna"]
+grouped = toolz.groupby(lambda s: s[0], names)  # dict[str, list[str]]
 ```
 
-The same types work with `tlz`:
+### Using with cytoolz
+
+When you `pip install toolz`, you also get a second package called [`tlz`](https://github.com/pytoolz/toolz/tree/master/tlz). It's a thin auto-selecting wrapper: if [cytoolz](https://github.com/pytoolz/cytoolz) (the C-accelerated version) is installed, `tlz` imports from it; otherwise it falls back to pure-Python `toolz`. The API is identical either way.
+
+If you use `cytoolz`, you can switch your imports to `tlz` to get the same performance with type checking support and a graceful fallback:
 
 ```python
-import tlz
-from tlz import curry, compose, pipe
+# before
+from cytoolz.dicttoolz import merge, valmap
+from cytoolz.functoolz import curry, compose, pipe
 
-# Identical API, same type hints
-result = tlz.pipe(data, transform1, transform2)
+# after — same performance, now with type stubs
+from tlz.dicttoolz import merge, valmap
+from tlz.functoolz import curry, compose, pipe
 ```
 
 ## What's Included
@@ -46,7 +51,7 @@ result = tlz.pipe(data, transform1, transform2)
 This package provides type stubs (`.pyi` files) for:
 
 - **toolz**: The pure Python functional programming library
-- **tlz**: The auto-selecting wrapper that uses cytoolz (if available) or falls back to toolz
+- **tlz**: The auto-selecting wrapper (uses cytoolz if installed, otherwise falls back to toolz)
 
 Modules covered:
 - `toolz.functoolz` / `tlz.functoolz` - Function manipulation (curry, compose, pipe, etc.)
@@ -73,7 +78,7 @@ If manually running commands, be sure to specify `--no-editable` or hatchling wi
 
 The tests in `tests/` serve a few purposes:
 - they verify runtime behavior with pytest.
-- they verify that these stubs geninely improve the developer experience in an IDE.
+- they verify that these stubs genuinely improve the developer experience in an IDE.
 - they are type-checked by basedpyright. This ensures the stubs match actual library behavior.
 
 ## Contributing

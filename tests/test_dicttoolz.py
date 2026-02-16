@@ -106,6 +106,13 @@ class TestKeyfilter:
         _ = assert_type(result, dict[int, int])
         assert result == {2: 3, 4: 5}
 
+    def test_string_values(self) -> None:
+        """keyfilter with string values (README example)."""
+        result = dt.keyfilter(lambda k: k % 2 == 0, {1: "a", 2: "b", 3: "c"})
+
+        _ = assert_type(result, dict[int, str])
+        assert result == {2: "b"}
+
 
 class TestItemfilter:
     """Tests for itemfilter function."""

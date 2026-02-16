@@ -80,6 +80,14 @@ class TestGroupby:
         _ = assert_type(result, dict[bool, list[int]])
         assert result == {False: [1, 3, 5, 7], True: [2, 4, 6, 8]}
 
+    def test_first_char(self) -> None:
+        """groupby with first character key (README example)."""
+        names = ["Alice", "Bob", "Charlie", "Anna"]
+        result = it.groupby(lambda s: s[0], names)
+
+        _ = assert_type(result, dict[str, list[str]])
+        assert result == {"A": ["Alice", "Anna"], "B": ["Bob"], "C": ["Charlie"]}
+
 
 class TestMergeSorted:
     """Tests for merge_sorted function."""
