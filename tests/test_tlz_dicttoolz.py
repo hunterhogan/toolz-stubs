@@ -2,7 +2,9 @@
 
 from typing import assert_type
 
+import pytest
 import tlz
+from typing_extensions import TypeIs
 
 
 def test_merge() -> None:
@@ -92,6 +94,27 @@ def test_valfilter() -> None:
     assert result == {"c": 3, "d": 4}
 
 
+@pytest.mark.parametrize(
+    "mappingMixed, expectedMapping",
+    [
+        ({"alpha": 13, "beta": "twenty-one", "gamma": 34}, {"alpha": 13, "gamma": 34}),
+    ],
+)
+def test_valfilterTypeIs(
+    mappingMixed: dict[str, int | str],
+    expectedMapping: dict[str, int],
+) -> None:
+    def valueIsInteger(valueCandidate: int | str) -> TypeIs[int]:
+        return isinstance(valueCandidate, int)
+
+    filteredMapping = tlz.valfilter(valueIsInteger, mappingMixed)
+
+    _ = assert_type(filteredMapping, dict[str, int])
+    assert filteredMapping == expectedMapping, (
+        f"valfilter returned {filteredMapping}, expected {expectedMapping} for {mappingMixed=}."
+    )
+
+
 def test_keyfilter() -> None:
     """keyfilter should filter by key."""
     d = {"apple": 1, "banana": 2, "apricot": 3}
@@ -100,6 +123,27 @@ def test_keyfilter() -> None:
 
     _ = assert_type(result, dict[str, int])
     assert result == {"apple": 1, "apricot": 3}
+
+
+@pytest.mark.parametrize(
+    "mappingMixedKeys, expectedMapping",
+    [
+        ({13: "alpha", "beta": "bravo", 34: "charlie"}, {13: "alpha", 34: "charlie"}),
+    ],
+)
+def test_keyfilterTypeIs(
+    mappingMixedKeys: dict[int | str, str],
+    expectedMapping: dict[int, str],
+) -> None:
+    def keyIsInteger(keyCandidate: int | str) -> TypeIs[int]:
+        return isinstance(keyCandidate, int)
+
+    filteredMapping = tlz.keyfilter(keyIsInteger, mappingMixedKeys)
+
+    _ = assert_type(filteredMapping, dict[int, str])
+    assert filteredMapping == expectedMapping, (
+        f"keyfilter returned {filteredMapping}, expected {expectedMapping} for {mappingMixedKeys=}."
+    )
 
 
 def test_itemfilter() -> None:

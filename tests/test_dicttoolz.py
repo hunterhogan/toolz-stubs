@@ -1,6 +1,6 @@
 """Tests for toolz.dicttoolz to verify stubs work correctly."""
 
-from typing import assert_type
+from typing import TypeGuard, assert_type
 
 import pytest
 import toolz.dicttoolz as dt
@@ -90,6 +90,27 @@ class TestValfilter:
         _ = assert_type(result, dict[int, int])
         assert result == {1: 2, 3: 4}
 
+    @pytest.mark.parametrize(
+        "mappingMixed, expectedMapping",
+        [
+            ({2: 13, 5: "twenty-one", 8: 34}, {2: 13, 8: 34}),
+        ],
+    )
+    def test_typeGuardNarrowsValue(
+        self,
+        mappingMixed: dict[int, int | str],
+        expectedMapping: dict[int, int],
+    ) -> None:
+        def valueIsInteger(valueCandidate: int | str) -> TypeGuard[int]:
+            return isinstance(valueCandidate, int)
+
+        filteredMapping = dt.valfilter(valueIsInteger, mappingMixed)
+
+        _ = assert_type(filteredMapping, dict[int, int])
+        assert filteredMapping == expectedMapping, (
+            f"valfilter returned {filteredMapping}, expected {expectedMapping} for {mappingMixed=}."
+        )
+
 
 class TestKeyfilter:
     """Tests for keyfilter function."""
@@ -112,6 +133,27 @@ class TestKeyfilter:
 
         _ = assert_type(result, dict[int, str])
         assert result == {2: "b"}
+
+    @pytest.mark.parametrize(
+        "mappingMixedKeys, expectedMapping",
+        [
+            ({3: 13, "delta": 21, 8: 34}, {3: 13, 8: 34}),
+        ],
+    )
+    def test_typeGuardNarrowsKey(
+        self,
+        mappingMixedKeys: dict[int | str, int],
+        expectedMapping: dict[int, int],
+    ) -> None:
+        def keyIsInteger(keyCandidate: int | str) -> TypeGuard[int]:
+            return isinstance(keyCandidate, int)
+
+        filteredMapping = dt.keyfilter(keyIsInteger, mappingMixedKeys)
+
+        _ = assert_type(filteredMapping, dict[int, int])
+        assert filteredMapping == expectedMapping, (
+            f"keyfilter returned {filteredMapping}, expected {expectedMapping} for {mappingMixedKeys=}."
+        )
 
 
 class TestItemfilter:

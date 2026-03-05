@@ -3,7 +3,16 @@
 import collections.abc
 from typing import assert_type, cast
 
+import pytest
 import tlz
+
+
+def makeNumberSequenceIterable() -> collections.abc.Iterable[int]:
+    return iter([13, 21, 13, 34])
+
+
+def makeNumberSequenceIterator() -> collections.abc.Iterator[int]:
+    return (numberValue for numberValue in [13, 21, 13, 34])
 
 
 def test_first_second_last() -> None:
@@ -122,14 +131,24 @@ def test_frequencies() -> None:
     assert freqs["bird"] == 1
 
 
-def test_unique() -> None:
+@pytest.mark.parametrize(
+    "numbersIterableFactory, expectedUnique",
+    [
+        (makeNumberSequenceIterable, [13, 21, 34]),
+        (makeNumberSequenceIterator, [13, 21, 34]),
+    ],
+)
+def test_unique(
+    numbersIterableFactory: collections.abc.Callable[[], collections.abc.Iterable[int]],
+    expectedUnique: list[int],
+) -> None:
     """unique should return distinct elements in order."""
-    nums = [1, 2, 1, 3, 2, 4, 1]
+    uniqueValues = list(tlz.unique(numbersIterableFactory()))
 
-    result = list(tlz.unique(nums))
-
-    _ = assert_type(result, list[int])
-    assert result == [1, 2, 3, 4]
+    _ = assert_type(uniqueValues, list[int])
+    assert uniqueValues == expectedUnique, (
+        f"unique returned {uniqueValues}, expected {expectedUnique} for {numbersIterableFactory=}."
+    )
 
 
 def test_concat() -> None:

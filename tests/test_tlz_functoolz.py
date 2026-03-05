@@ -1,7 +1,9 @@
 """Tests for tlz.functoolz to verify stubs work correctly."""
 
+import functools
 from typing import assert_type
 
+import pytest
 import tlz
 
 
@@ -57,6 +59,60 @@ def test_pipe_type_transformation() -> None:
 
     _ = assert_type(result, int)
     assert result == 5
+
+
+@pytest.mark.parametrize(
+    "leftNumber, rightNumber, expectedProduct",
+    [
+        (3, 5, 15),
+    ],
+)
+def test_curryPartialApplication(
+    leftNumber: int,
+    rightNumber: int,
+    expectedProduct: int,
+) -> None:
+    def multiplyNumbers(leftNumber: int, rightNumber: int) -> int:
+        return leftNumber * rightNumber
+
+    curriedMultiplyNumbers = tlz.curry(multiplyNumbers)
+    partialMultiplyNumbers = curriedMultiplyNumbers(leftNumber)
+
+    _ = assert_type(partialMultiplyNumbers, functools.partial[int])
+    computedProduct = partialMultiplyNumbers(rightNumber)
+    _ = assert_type(computedProduct, int)
+    assert computedProduct == expectedProduct, (
+        f"curry returned {computedProduct}, expected {expectedProduct} for {leftNumber=} and {rightNumber=}."
+    )
+
+
+@pytest.mark.parametrize(
+    "leftNumber, rightNumber, weightFactor, expectedWeightedSum",
+    [
+        (3, 5, 13, 104),
+    ],
+)
+def test_curryKeywordPartialApplication(
+    leftNumber: int,
+    rightNumber: int,
+    weightFactor: int,
+    expectedWeightedSum: int,
+) -> None:
+    @tlz.curry
+    def weightedSum(
+        leftNumber: int,
+        rightNumber: int,
+        weightFactor: int = 11,
+    ) -> int:
+        return weightFactor * (leftNumber + rightNumber)
+
+    partialWeightedSum = weightedSum(weightFactor=weightFactor)
+    _ = assert_type(partialWeightedSum, functools.partial[int])
+    computedWeightedSum = partialWeightedSum(leftNumber, rightNumber)
+    _ = assert_type(computedWeightedSum, int)
+    assert computedWeightedSum == expectedWeightedSum, (
+        f"curry returned {computedWeightedSum}, expected {expectedWeightedSum} for {leftNumber=} and {rightNumber=} with {weightFactor=}."
+    )
 
 
 def test_complement() -> None:

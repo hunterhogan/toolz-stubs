@@ -1,10 +1,18 @@
 """Tests for toolz.itertoolz to verify stubs work correctly."""
 
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from typing import Literal, assert_type
 
 import pytest
 import toolz.itertoolz as it
+
+
+def makeNumberSequenceIterable() -> Iterable[int]:
+    return iter([13, 21, 13, 34])
+
+
+def makeNumberSequenceIterator() -> Iterator[int]:
+    return (numberValue for numberValue in [13, 21, 13, 34])
 
 
 class TestRemove:
@@ -160,6 +168,26 @@ class TestUnique:
 
         _ = assert_type(result, Iterator[str])
         assert tuple(result) == ("cat", "mouse")
+
+    @pytest.mark.parametrize(
+        "numbersIterableFactory, expectedUnique",
+        [
+            (makeNumberSequenceIterable, (13, 21, 34)),
+            (makeNumberSequenceIterator, (13, 21, 34)),
+        ],
+    )
+    def test_iterable_input(
+        self,
+        numbersIterableFactory: Callable[[], Iterable[int]],
+        expectedUnique: tuple[int, ...],
+    ) -> None:
+        uniqueIterator = it.unique(numbersIterableFactory())
+
+        _ = assert_type(uniqueIterator, Iterator[int])
+        uniqueValues = tuple(uniqueIterator)
+        assert uniqueValues == expectedUnique, (
+            f"unique returned {uniqueValues}, expected {expectedUnique} for {numbersIterableFactory=}."
+        )
 
 
 class TestIsiterable:

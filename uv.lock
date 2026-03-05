@@ -252,7 +252,7 @@ name = "toolz-stubs"
 source = { editable = "." }
 dependencies = [
     { name = "toolz" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions" },
 ]
 
 [package.dev-dependencies]
@@ -266,7 +266,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "toolz", specifier = "~=1.0" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13'", specifier = ">=4.10" },
+    { name = "typing-extensions", specifier = ">=4.10.0" },
 ]
 
 [package.metadata.requires-dev]
