@@ -171,18 +171,21 @@ def itemmap[K0, V0, K1, V1](
 def valfilter[K, V, R](
     predicate: collections.abc.Callable[[V], typing.TypeGuard[R]],
     d: collections.abc.Mapping[K, V],
+    *,
     factory: collections.abc.Callable[[], dict[K, R]] = ...,
 ) -> dict[K, R]: ...
 @typing.overload
 def valfilter[K, V, R](
     predicate: collections.abc.Callable[[V], typing_extensions.TypeIs[R]],
     d: collections.abc.Mapping[K, V],
+    *,
     factory: collections.abc.Callable[[], dict[K, R]] = ...,
 ) -> dict[K, R]: ...
 @typing.overload
 def valfilter[K, V](
     predicate: collections.abc.Callable[[V], bool],
     d: collections.abc.Mapping[K, V],
+    *,
     factory: collections.abc.Callable[[], dict[K, V]] = ...,
 ) -> dict[K, V]: ...
 def valfilter[K, V, R](
@@ -190,6 +193,7 @@ def valfilter[K, V, R](
     | collections.abc.Callable[[V], typing_extensions.TypeIs[R]]
     | collections.abc.Callable[[V], typing.TypeGuard[R]],
     d: collections.abc.Mapping[K, V],
+    *,
     factory: collections.abc.Callable[[], dict[K, V]]
     | collections.abc.Callable[[], dict[K, R]] = ...,
 ) -> dict[K, V] | dict[K, R]:
@@ -211,18 +215,21 @@ def valfilter[K, V, R](
 def keyfilter[K, V, U](
     predicate: typing.Callable[[K], typing.TypeGuard[U]],
     d: collections.abc.Mapping[K, V],
+    *,
     factory: typing.Callable[[], dict[U, V]] = ...,
 ) -> dict[U, V]: ...
 @typing.overload
 def keyfilter[K, V, U](
     predicate: typing.Callable[[K], typing_extensions.TypeIs[U]],
     d: collections.abc.Mapping[K, V],
+    *,
     factory: typing.Callable[[], dict[U, V]] = ...,
 ) -> dict[U, V]: ...
 @typing.overload
 def keyfilter[K, V](
     predicate: typing.Callable[[K], bool],
     d: collections.abc.Mapping[K, V],
+    *,
     factory: typing.Callable[[], dict[K, V]] = ...,
 ) -> dict[K, V]: ...
 def keyfilter[K, V, U](
@@ -230,6 +237,7 @@ def keyfilter[K, V, U](
     | typing.Callable[[K], typing_extensions.TypeIs[U]]
     | typing.Callable[[K], typing.TypeGuard[U]],
     d: collections.abc.Mapping[K, V],
+    *,
     factory: typing.Callable[[], dict[K, V]] | typing.Callable[[], dict[U, V]] = ...,
 ) -> dict[K, V] | dict[U, V]:
     """Filter items in dictionary by key

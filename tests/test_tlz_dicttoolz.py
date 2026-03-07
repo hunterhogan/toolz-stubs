@@ -2,7 +2,6 @@
 
 from typing import assert_type
 
-import pytest
 import tlz
 from typing_extensions import TypeIs
 
@@ -94,25 +93,22 @@ def test_valfilter() -> None:
     assert result == {"c": 3, "d": 4}
 
 
-@pytest.mark.parametrize(
-    "mappingMixed, expectedMapping",
-    [
-        ({"alpha": 13, "beta": "twenty-one", "gamma": 34}, {"alpha": 13, "gamma": 34}),
-    ],
-)
-def test_valfilterTypeIs(
-    mappingMixed: dict[str, int | str],
-    expectedMapping: dict[str, int],
-) -> None:
-    def valueIsInteger(valueCandidate: int | str) -> TypeIs[int]:
-        return isinstance(valueCandidate, int)
+def test_valfilter_type_is() -> None:
+    """valfilter with TypeIs should narrow value type."""
+    mapping_mixed: dict[str, int | str] = {
+        "alpha": 13,
+        "beta": "twenty-one",
+        "gamma": 34,
+    }
+    expected_mapping: dict[str, int] = {"alpha": 13, "gamma": 34}
 
-    filteredMapping = tlz.valfilter(valueIsInteger, mappingMixed)
+    def value_is_integer(value_candidate: int | str) -> TypeIs[int]:
+        return isinstance(value_candidate, int)
 
-    _ = assert_type(filteredMapping, dict[str, int])
-    assert filteredMapping == expectedMapping, (
-        f"valfilter returned {filteredMapping}, expected {expectedMapping} for {mappingMixed=}."
-    )
+    filtered_mapping = tlz.valfilter(value_is_integer, mapping_mixed)
+
+    _ = assert_type(filtered_mapping, dict[str, int])
+    assert filtered_mapping == expected_mapping
 
 
 def test_keyfilter() -> None:
@@ -125,25 +121,22 @@ def test_keyfilter() -> None:
     assert result == {"apple": 1, "apricot": 3}
 
 
-@pytest.mark.parametrize(
-    "mappingMixedKeys, expectedMapping",
-    [
-        ({13: "alpha", "beta": "bravo", 34: "charlie"}, {13: "alpha", 34: "charlie"}),
-    ],
-)
-def test_keyfilterTypeIs(
-    mappingMixedKeys: dict[int | str, str],
-    expectedMapping: dict[int, str],
-) -> None:
-    def keyIsInteger(keyCandidate: int | str) -> TypeIs[int]:
-        return isinstance(keyCandidate, int)
+def test_keyfilter_type_is() -> None:
+    """keyfilter with TypeIs should narrow key type."""
+    mapping_mixed_keys: dict[int | str, str] = {
+        13: "alpha",
+        "beta": "bravo",
+        34: "charlie",
+    }
+    expected_mapping: dict[int, str] = {13: "alpha", 34: "charlie"}
 
-    filteredMapping = tlz.keyfilter(keyIsInteger, mappingMixedKeys)
+    def key_is_integer(key_candidate: int | str) -> TypeIs[int]:
+        return isinstance(key_candidate, int)
 
-    _ = assert_type(filteredMapping, dict[int, str])
-    assert filteredMapping == expectedMapping, (
-        f"keyfilter returned {filteredMapping}, expected {expectedMapping} for {mappingMixedKeys=}."
-    )
+    filtered_mapping = tlz.keyfilter(key_is_integer, mapping_mixed_keys)
+
+    _ = assert_type(filtered_mapping, dict[int, str])
+    assert filtered_mapping == expected_mapping
 
 
 def test_itemfilter() -> None:
