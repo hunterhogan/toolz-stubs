@@ -175,7 +175,7 @@ def interleave[T](
     ...
 
 def unique[T](
-    seq: collections.abc.Sequence[T],
+    seq: collections.abc.Iterable[T],
     key: typing.Callable[[T], typing.Any] | None = None,
 ) -> collections.abc.Iterator[T]:
     """Return only unique elements of a sequence

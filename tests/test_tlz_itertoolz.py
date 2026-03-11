@@ -122,14 +122,21 @@ def test_frequencies() -> None:
     assert freqs["bird"] == 1
 
 
-def test_unique() -> None:
-    """unique should return distinct elements in order."""
-    nums = [1, 2, 1, 3, 2, 4, 1]
+class TestUnique:
+    def test_unique(self) -> None:
+        """unique should return distinct elements in order."""
+        nums = [1, 2, 1, 3, 2, 4, 1]
 
-    result = list(tlz.unique(nums))
+        result = list(tlz.unique(nums))
 
-    _ = assert_type(result, list[int])
-    assert result == [1, 2, 3, 4]
+        _ = assert_type(result, list[int])
+        assert result == [1, 2, 3, 4]
+
+    def test_unique_iterable(self):
+        iterable = iter(tlz.concatv(range(5), range(5)))
+        result = tlz.unique(iterable)
+        _ = assert_type(result, collections.abc.Iterator[int])
+        assert list(result) == list(range(5))
 
 
 def test_concat() -> None:
