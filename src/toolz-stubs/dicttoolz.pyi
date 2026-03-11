@@ -321,7 +321,8 @@ def itemfilter[K, V](
     factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
 ) -> collections.abc.MutableMapping[K, V]: ...
 def itemfilter[K, V, K1, V1](
-    predicate: typing.Callable[[tuple[K, V]], bool] | typing.Callable[[tuple[K, V]], typing.TypeGuard[tuple[K1, V1]]],
+    predicate: typing.Callable[[tuple[K, V]], bool]
+    | typing.Callable[[tuple[K, V]], typing.TypeGuard[tuple[K1, V1]]],
     d: collections.abc.Mapping[K, V],
     *,
     factory: typing.Callable[[], collections.abc.MutableMapping[K, V]] = dict,
