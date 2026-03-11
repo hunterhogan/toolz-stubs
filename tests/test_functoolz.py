@@ -1,3 +1,5 @@
+import functools
+import typing
 from typing import assert_type
 
 import tlz
@@ -144,3 +146,86 @@ class TestJuxt:
 
         _ = assert_type(result, tuple[()])
         assert result == ()
+
+
+class TestCurry:
+    """Tests for curry with ParamSpec-aware typing."""
+
+    def test_full_application_preserves_return_type(self) -> None:
+        """curry(func)(all_args) should return T, not T | curry[T]."""
+
+        def add(x: int, y: int) -> int:
+            return x + y
+
+        curried_add = toolz.curry(add)
+        result = curried_add(2, 3)
+
+        _ = assert_type(result, int)
+        assert result == 5
+
+    def test_partial_application_returns_partial(self) -> None:
+        """curry(func)(some_args) should return functools.partial[T]."""
+
+        def add(x: int, y: int) -> int:
+            return x + y
+
+        curried_add = toolz.curry(add)
+        partial_result = curried_add(2)
+
+        _ = assert_type(partial_result, functools.partial[int])
+        # The partial can be called to get the final result
+        assert partial_result(3) == 5
+
+    def test_decorator_usage(self) -> None:
+        """@curry should work as a decorator and preserve param types."""
+
+        @toolz.curry
+        def multiply(x: int, y: int) -> int:
+            return x * y
+
+        result = multiply(3, 4)
+        _ = assert_type(result, int)
+        assert result == 12
+
+    def test_keyword_arguments(self) -> None:
+        """Curried functions should support keyword arguments."""
+
+        def greet(name: str, greeting: str = "Hello") -> str:
+            return f"{greeting}, {name}!"
+
+        curried_greet = toolz.curry(greet)
+        result = curried_greet(name="World", greeting="Hi")
+
+        _ = assert_type(result, str)
+        assert result == "Hi, World!"
+
+    def test_func_property_preserves_signature(self) -> None:
+        """The .func property should have the original callable's type."""
+
+        class _AddFunc(typing.Protocol):
+            def __call__(self, x: int, y: int) -> int: ...
+
+        def add(x: int, y: int) -> int:
+            return x + y
+
+        curried_add = toolz.curry(add)
+
+        # This _assignment_ is still a valid check
+        # basedpyright will validate that the assignment given is valid
+        # Revealing the type of curried_add.func shows that it has named kwargs x & y of type int
+        # Therefore, this assignment is a test if basedpyright is blocking in CI
+        # ...which it is. This is a stub library.
+        func: _AddFunc = curried_add.func
+        assert func(1, 2) == 3
+
+    def test_curry_via_tlz(self) -> None:
+        """curry should also work through the tlz namespace."""
+
+        def sub(a: int, b: int) -> int:
+            return a - b
+
+        curried_sub = tlz.curry(sub)
+        result = curried_sub(10, 3)
+
+        _ = assert_type(result, int)
+        assert result == 7
