@@ -1,6 +1,12 @@
 """Tests for toolz.dicttoolz to verify stubs work correctly."""
 
-from typing import assert_type
+import sys
+from typing import TypeGuard, assert_type
+
+if sys.version_info >= (3, 13):
+    from typing import TypeIs  # pyright: ignore[reportUnreachable]
+else:
+    from typing_extensions import TypeIs
 
 import pytest
 import toolz.dicttoolz as dt
@@ -90,6 +96,30 @@ class TestValfilter:
         _ = assert_type(result, dict[int, int])
         assert result == {1: 2, 3: 4}
 
+    def test_type_guard(self) -> None:
+        """valfilter with TypeGuard predicate should narrow value type."""
+
+        def is_str(x: str | int) -> TypeGuard[str]:
+            return isinstance(x, str)
+
+        d: dict[int, str | int] = {1: "hello", 2: 42, 3: "world"}
+        result = dt.valfilter(is_str, d)
+
+        _ = assert_type(result, dict[int, str])
+        assert result == {1: "hello", 3: "world"}
+
+    def test_type_is(self) -> None:
+        """valfilter with TypeIs predicate should narrow value type."""
+
+        def is_str(x: str | int) -> TypeIs[str]:
+            return isinstance(x, str)
+
+        d: dict[int, str | int] = {1: "hello", 2: 42, 3: "world"}
+        result = dt.valfilter(is_str, d)
+
+        _ = assert_type(result, dict[int, str])
+        assert result == {1: "hello", 3: "world"}
+
 
 class TestKeyfilter:
     """Tests for keyfilter function."""
@@ -113,6 +143,30 @@ class TestKeyfilter:
         _ = assert_type(result, dict[int, str])
         assert result == {2: "b"}
 
+    def test_type_guard(self) -> None:
+        """keyfilter with TypeGuard predicate should narrow key type."""
+
+        def is_str(x: str | int) -> TypeGuard[str]:
+            return isinstance(x, str)
+
+        d: dict[str | int, int] = {"a": 1, 2: 2, "b": 3}
+        result = dt.keyfilter(is_str, d)
+
+        _ = assert_type(result, dict[str, int])
+        assert result == {"a": 1, "b": 3}
+
+    def test_type_is(self) -> None:
+        """keyfilter with TypeIs predicate should narrow key type."""
+
+        def is_str(x: str | int) -> TypeIs[str]:
+            return isinstance(x, str)
+
+        d: dict[str | int, int] = {"a": 1, 2: 2, "b": 3}
+        result = dt.keyfilter(is_str, d)
+
+        _ = assert_type(result, dict[str, int])
+        assert result == {"a": 1, "b": 3}
+
 
 class TestItemfilter:
     """Tests for itemfilter function."""
@@ -129,6 +183,30 @@ class TestItemfilter:
 
         _ = assert_type(result, dict[int, int])
         assert result == {2: 3}
+
+    def test_type_guard(self) -> None:
+        """itemfilter with TypeGuard predicate should narrow item type."""
+
+        def has_str_value(item: tuple[int, str | int]) -> TypeGuard[tuple[int, str]]:
+            return isinstance(item[1], str)
+
+        d: dict[int, str | int] = {1: "hello", 2: 42, 3: "world"}
+        result = dt.itemfilter(has_str_value, d)
+
+        _ = assert_type(result, dict[int, str])
+        assert result == {1: "hello", 3: "world"}
+
+    def test_type_is(self) -> None:
+        """itemfilter with TypeIs predicate should narrow item type."""
+
+        def has_str_value(item: tuple[int, str | int]) -> TypeIs[tuple[int, str]]:
+            return isinstance(item[1], str)
+
+        d: dict[int, str | int] = {1: "hello", 2: 42, 3: "world"}
+        result = dt.itemfilter(has_str_value, d)
+
+        _ = assert_type(result, dict[int, str])
+        assert result == {1: "hello", 3: "world"}
 
 
 class TestAssoc:
