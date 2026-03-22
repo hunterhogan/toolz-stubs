@@ -55,7 +55,7 @@ class _Randomable(typing.Protocol):
 ### Toolz itself
 
 def remove[T](
-    predicate: typing.Callable[[T], bool], seq: collections.abc.Iterable[T]
+    predicate: collections.abc.Callable[[T], bool], seq: collections.abc.Iterable[T]
 ) -> collections.abc.Iterable[T]:
     """Return those items of sequence for which predicate(item) is False
 
@@ -68,15 +68,17 @@ def remove[T](
 
 @typing.overload
 def accumulate[T](
-    binop: typing.Callable[[T, T], T],
+    binop: collections.abc.Callable[[T, T], T],
     seq: collections.abc.Iterable[T],
 ) -> collections.abc.Iterator[T]: ...
 @typing.overload
 def accumulate[T](
-    binop: typing.Callable[[T, T], T], seq: collections.abc.Iterable[T], initial: T
+    binop: collections.abc.Callable[[T, T], T],
+    seq: collections.abc.Iterable[T],
+    initial: T,
 ) -> collections.abc.Iterator[T]: ...
 def accumulate[T](
-    binop: typing.Callable[[T, T], T],
+    binop: collections.abc.Callable[[T, T], T],
     seq: collections.abc.Iterable[T],
     initial: T | _NoDefaultType = no_default,
 ) -> collections.abc.Iterator[T]:
@@ -109,7 +111,7 @@ def accumulate[T](
     ...
 
 def groupby[KT, T](
-    key: typing.Callable[[T], KT], seq: collections.abc.Iterable[T]
+    key: collections.abc.Callable[[T], KT], seq: collections.abc.Iterable[T]
 ) -> dict[KT, list[T]]:
     """Group a collection by a key function
 
@@ -138,7 +140,8 @@ def groupby[KT, T](
     ...
 
 def merge_sorted[CT: SupportsRichComparison](
-    *seqs: collections.abc.Iterable[CT], key: typing.Callable[[CT], CT] | None = None
+    *seqs: collections.abc.Iterable[CT],
+    key: collections.abc.Callable[[CT], CT] | None = None,
 ) -> collections.abc.Iterator[CT]:
     """Merge and sort a collection of sorted collections
 
@@ -176,7 +179,7 @@ def interleave[T](
 
 def unique[T](
     seq: collections.abc.Iterable[T],
-    key: typing.Callable[[T], typing.Any] | None = None,
+    key: collections.abc.Callable[[T], typing.Any] | None = None,
 ) -> collections.abc.Iterator[T]:
     """Return only unique elements of a sequence
 
@@ -390,7 +393,7 @@ def concatv[T](*seqs: collections.abc.Iterable[T]) -> collections.abc.Iterator[T
     ...
 
 def mapcat[T, R](
-    func: typing.Callable[[T], collections.abc.Iterable[R]],
+    func: collections.abc.Callable[[T], collections.abc.Iterable[R]],
     seqs: collections.abc.Iterable[T],
 ) -> collections.abc.Iterator[R]:
     """Apply func to each sequence in seqs, concatenating results.
@@ -433,35 +436,35 @@ def frequencies[T](seq: collections.abc.Iterable[T]) -> dict[T, int]:
 
 @typing.overload
 def reduceby[T, K](
-    key: typing.Callable[[T], K],
-    binop: typing.Callable[[T, T], T],
+    key: collections.abc.Callable[[T], K],
+    binop: collections.abc.Callable[[T, T], T],
     seq: collections.abc.Iterable[T],
 ) -> dict[K, T]: ...
 @typing.overload
 def reduceby[T, K](
-    key: typing.Callable[[T], K],
-    binop: typing.Callable[[T, T], T],
+    key: collections.abc.Callable[[T], K],
+    binop: collections.abc.Callable[[T, T], T],
     seq: collections.abc.Iterable[T],
-    init: T | typing.Callable[[], T],
+    init: T | collections.abc.Callable[[], T],
 ) -> dict[K, T]: ...
 @typing.overload
 def reduceby[T](
     key: typing.Any,  # when not callable, use identity function
-    binop: typing.Callable[[T, T], T],
+    binop: collections.abc.Callable[[T, T], T],
     seq: collections.abc.Iterable[T],
 ) -> dict[T, T]: ...
 @typing.overload
 def reduceby[T](
     key: typing.Any,  # when not callable, use identity function
-    binop: typing.Callable[[T, T], T],
+    binop: collections.abc.Callable[[T, T], T],
     seq: collections.abc.Iterable[T],
-    init: T | typing.Callable[[], T],
+    init: T | collections.abc.Callable[[], T],
 ) -> dict[T, T]: ...
 def reduceby[T, K](
-    key: typing.Callable[[T], K] | typing.Any,
-    binop: typing.Callable[[T, T], T],
+    key: collections.abc.Callable[[T], K] | typing.Any,
+    binop: collections.abc.Callable[[T, T], T],
     seq: collections.abc.Iterable[T],
-    init: T | typing.Callable[[], T] | _NoDefaultType = no_default,
+    init: T | collections.abc.Callable[[], T] | _NoDefaultType = no_default,
 ) -> dict[K, T]:
     """Perform a simultaneous groupby and reduction
 
@@ -525,7 +528,9 @@ def reduceby[T, K](
     """
     ...
 
-def iterate[T](func: typing.Callable[[T], T], x: T) -> collections.abc.Iterator[T]:
+def iterate[T](
+    func: collections.abc.Callable[[T], T], x: T
+) -> collections.abc.Iterator[T]:
     """Repeatedly apply a function func onto an original input
 
     Yields x, then func(x), then func(func(x)), then func(func(func(x))), etc..
@@ -693,19 +698,19 @@ def pluck[T](
 @typing.overload
 def getter[T](
     index: list[typing.Any],
-) -> typing.Callable[
+) -> collections.abc.Callable[
     [collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]],
     tuple[T, ...],
 ]: ...
 @typing.overload
 def getter[T](
     index: typing.Any,
-) -> typing.Callable[
+) -> collections.abc.Callable[
     [collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]], T
 ]: ...
 def getter[T](
     index: typing.Any | list[typing.Any],
-) -> typing.Callable[
+) -> collections.abc.Callable[
     [collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]],
     T | tuple[T, ...],
 ]:
@@ -715,33 +720,33 @@ def getter[T](
 # === CALLABLE + CALLABLE (4 overloads) ===
 @typing.overload
 def join[T, U](
-    leftkey: typing.Callable[[T], typing.Hashable],
+    leftkey: collections.abc.Callable[[T], typing.Hashable],
     leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
+    rightkey: collections.abc.Callable[[U], typing.Hashable],
     rightseq: collections.abc.Iterable[U],
 ) -> collections.abc.Iterator[tuple[T, U]]: ...
 @typing.overload
 def join[T, U, L](
-    leftkey: typing.Callable[[T], typing.Hashable],
+    leftkey: collections.abc.Callable[[T], typing.Hashable],
     leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
+    rightkey: collections.abc.Callable[[U], typing.Hashable],
     rightseq: collections.abc.Iterable[U],
     left_default: L,
 ) -> collections.abc.Iterator[tuple[T | L, U]]: ...
 @typing.overload
 def join[T, U, R](
-    leftkey: typing.Callable[[T], typing.Hashable],
+    leftkey: collections.abc.Callable[[T], typing.Hashable],
     leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
+    rightkey: collections.abc.Callable[[U], typing.Hashable],
     rightseq: collections.abc.Iterable[U],
     *,
     right_default: R,
 ) -> collections.abc.Iterator[tuple[T, U | R]]: ...
 @typing.overload
 def join[T, U, L, R](
-    leftkey: typing.Callable[[T], typing.Hashable],
+    leftkey: collections.abc.Callable[[T], typing.Hashable],
     leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
+    rightkey: collections.abc.Callable[[U], typing.Hashable],
     rightseq: collections.abc.Iterable[U],
     left_default: L,
     right_default: R,
@@ -752,14 +757,14 @@ def join[T, U, L, R](
 def join[T, U](
     leftkey: typing.Hashable,
     leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
+    rightkey: collections.abc.Callable[[U], typing.Hashable],
     rightseq: collections.abc.Iterable[U],
 ) -> collections.abc.Iterator[tuple[T, U]]: ...
 @typing.overload
 def join[T, U, L](
     leftkey: typing.Hashable,
     leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
+    rightkey: collections.abc.Callable[[U], typing.Hashable],
     rightseq: collections.abc.Iterable[U],
     left_default: L,
 ) -> collections.abc.Iterator[tuple[T | L, U]]: ...
@@ -767,7 +772,7 @@ def join[T, U, L](
 def join[T, U, R](
     leftkey: typing.Hashable,
     leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
+    rightkey: collections.abc.Callable[[U], typing.Hashable],
     rightseq: collections.abc.Iterable[U],
     *,
     right_default: R,
@@ -776,7 +781,7 @@ def join[T, U, R](
 def join[T, U, L, R](
     leftkey: typing.Hashable,
     leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
+    rightkey: collections.abc.Callable[[U], typing.Hashable],
     rightseq: collections.abc.Iterable[U],
     left_default: L,
     right_default: R,
@@ -785,14 +790,14 @@ def join[T, U, L, R](
 # === CALLABLE + HASHABLE (4 overloads) ===
 @typing.overload
 def join[T, U](
-    leftkey: typing.Callable[[T], typing.Hashable],
+    leftkey: collections.abc.Callable[[T], typing.Hashable],
     leftseq: collections.abc.Iterable[T],
     rightkey: typing.Hashable,
     rightseq: collections.abc.Iterable[U],
 ) -> collections.abc.Iterator[tuple[T, U]]: ...
 @typing.overload
 def join[T, U, L](
-    leftkey: typing.Callable[[T], typing.Hashable],
+    leftkey: collections.abc.Callable[[T], typing.Hashable],
     leftseq: collections.abc.Iterable[T],
     rightkey: typing.Hashable,
     rightseq: collections.abc.Iterable[U],
@@ -800,7 +805,7 @@ def join[T, U, L](
 ) -> collections.abc.Iterator[tuple[T | L, U]]: ...
 @typing.overload
 def join[T, U, R](
-    leftkey: typing.Callable[[T], typing.Hashable],
+    leftkey: collections.abc.Callable[[T], typing.Hashable],
     leftseq: collections.abc.Iterable[T],
     rightkey: typing.Hashable,
     rightseq: collections.abc.Iterable[U],
@@ -809,7 +814,7 @@ def join[T, U, R](
 ) -> collections.abc.Iterator[tuple[T, U | R]]: ...
 @typing.overload
 def join[T, U, L, R](
-    leftkey: typing.Callable[[T], typing.Hashable],
+    leftkey: collections.abc.Callable[[T], typing.Hashable],
     leftseq: collections.abc.Iterable[T],
     rightkey: typing.Hashable,
     rightseq: collections.abc.Iterable[U],
@@ -854,9 +859,9 @@ def join[T, U, L, R](
 
 # Implementation signature
 def join[T, U, L, R](
-    leftkey: typing.Callable[[T], typing.Hashable] | typing.Hashable,
+    leftkey: collections.abc.Callable[[T], typing.Hashable] | typing.Hashable,
     leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable] | typing.Hashable,
+    rightkey: collections.abc.Callable[[U], typing.Hashable] | typing.Hashable,
     rightseq: collections.abc.Iterable[U],
     left_default: L | _NoDefaultType = no_default,
     right_default: R | _NoDefaultType = no_default,
@@ -924,18 +929,18 @@ def join[T, U, L, R](
 @typing.overload
 def diff[T](
     *seqs: collections.abc.Iterable[T],
-    key: typing.Callable[[T], typing.Any] | None = None,
+    key: collections.abc.Callable[[T], typing.Any] | None = None,
 ) -> collections.abc.Iterator[tuple[T, ...]]: ...
 @typing.overload
 def diff[T](
     *seqs: collections.abc.Iterable[T],
     default: T,
-    key: typing.Callable[[T], typing.Any] | None = None,
+    key: collections.abc.Callable[[T], typing.Any] | None = None,
 ) -> collections.abc.Iterator[tuple[T, ...]]: ...
 def diff[T](
     *seqs: collections.abc.Iterable[T],
     default: T | _NoDefaultType = no_default,
-    key: typing.Callable[[T], typing.Any] | None = None,
+    key: collections.abc.Callable[[T], typing.Any] | None = None,
 ) -> collections.abc.Iterator[tuple[T, ...]]:
     """Return those items that differ between sequences
 
@@ -958,7 +963,7 @@ def diff[T](
 def topk[T](
     k: int,
     seq: collections.abc.Iterable[T],
-    key: typing.Callable[[T], SupportsRichComparison] | None = None,
+    key: collections.abc.Callable[[T], SupportsRichComparison] | None = None,
 ) -> tuple[T, ...]:
     """Find the k largest elements of a sequence
 

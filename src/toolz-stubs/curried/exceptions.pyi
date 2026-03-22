@@ -4,22 +4,24 @@ import typing
 __all__ = ["merge", "merge_with"]
 
 @typing.overload
-def merge_with[K, V]() -> typing.Callable[
+def merge_with[K, V]() -> collections.abc.Callable[
     ..., dict[K, V] | collections.abc.MutableMapping[K, V]
 ]: ...
 @typing.overload
 def merge_with[K, V](
-    func: typing.Callable[[list[V]], V], /
-) -> typing.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]: ...
+    func: collections.abc.Callable[[list[V]], V], /
+) -> collections.abc.Callable[
+    ..., dict[K, V] | collections.abc.MutableMapping[K, V]
+]: ...
 @typing.overload
 def merge_with[K, V](
-    func: typing.Callable[[list[V]], V],
+    func: collections.abc.Callable[[list[V]], V],
     d: collections.abc.Mapping[K, V],
     /,
 ) -> dict[K, V]: ...
 @typing.overload
 def merge_with[K, V](
-    func: typing.Callable[[list[V]], V],
+    func: collections.abc.Callable[[list[V]], V],
     d: collections.abc.Mapping[K, V],
     d2: collections.abc.Mapping[K, V],
     /,
@@ -27,29 +29,29 @@ def merge_with[K, V](
 ) -> dict[K, V]: ...
 @typing.overload
 def merge_with[K, V](
-    func: typing.Callable[[list[V]], V],
+    func: collections.abc.Callable[[list[V]], V],
     d: collections.abc.Mapping[K, V],
     d2: collections.abc.Mapping[K, V],
     /,
     *dicts: collections.abc.Mapping[K, V],
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
+    factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]],
 ) -> collections.abc.MutableMapping[K, V]: ...
 @typing.overload
 def merge_with[K, V](
-    func: typing.Callable[[list[V]], V],
+    func: collections.abc.Callable[[list[V]], V],
     /,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
-) -> typing.Callable[..., collections.abc.MutableMapping[K, V]]: ...
+    factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]],
+) -> collections.abc.Callable[..., collections.abc.MutableMapping[K, V]]: ...
 def merge_with[K, V](
-    func: typing.Callable[[list[V]], V] = ...,
+    func: collections.abc.Callable[[list[V]], V] = ...,
     d: collections.abc.Mapping[K, V] = ...,
     *dicts: collections.abc.Mapping[K, V],
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]] = ...,
+    factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = ...,
 ) -> (
     dict[K, V]
     | collections.abc.MutableMapping[K, V]
-    | typing.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]
+    | collections.abc.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]
 ):
     """Merge dictionaries and apply function to combined values
 
@@ -68,7 +70,7 @@ def merge_with[K, V](
     ...
 
 @typing.overload
-def merge[K, V]() -> typing.Callable[
+def merge[K, V]() -> collections.abc.Callable[
     ..., dict[K, V] | collections.abc.MutableMapping[K, V]
 ]: ...
 @typing.overload
@@ -86,21 +88,21 @@ def merge[K, V](
     d2: collections.abc.Mapping[K, V],
     /,
     *dicts: collections.abc.Mapping[K, V],
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
+    factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]],
 ) -> collections.abc.MutableMapping[K, V]: ...
 @typing.overload
 def merge[K, V](
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
-) -> typing.Callable[..., collections.abc.MutableMapping[K, V]]: ...
+    factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]],
+) -> collections.abc.Callable[..., collections.abc.MutableMapping[K, V]]: ...
 def merge[K, V](
     d: collections.abc.Mapping[K, V] = ...,
     *dicts: collections.abc.Mapping[K, V],
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]] = ...,
+    factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = ...,
 ) -> (
     dict[K, V]
     | collections.abc.MutableMapping[K, V]
-    | typing.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]
+    | collections.abc.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]
 ):
     """Merge a collection of dictionaries
 

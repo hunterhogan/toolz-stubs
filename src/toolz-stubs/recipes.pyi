@@ -4,7 +4,7 @@ import typing
 __all__ = ("countby", "partitionby")
 
 def countby[T, K](
-    key: typing.Callable[[T], K], seq: collections.abc.Iterable[T]
+    key: collections.abc.Callable[[T], K], seq: collections.abc.Iterable[T]
 ) -> dict[K, int]:
     """Count elements of a collection by a key function
 
@@ -21,7 +21,7 @@ def countby[T, K](
     ...
 
 def partitionby[T](
-    func: typing.Callable[[T], typing.Any], seq: collections.abc.Iterable[T]
+    func: collections.abc.Callable[[T], typing.Any], seq: collections.abc.Iterable[T]
 ) -> collections.abc.Iterator[tuple[T, ...]]:
     """Partition a sequence according to a function
 
