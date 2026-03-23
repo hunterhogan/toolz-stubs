@@ -25,9 +25,9 @@ PYPY = bool
 ### Internal type stubs
 _T = typing.TypeVar("_T")
 _Instance = typing.TypeVar("_Instance")
-_Getter = typing.Callable[[_Instance], _T]
-_Setter = typing.Callable[[_Instance, _T], None]
-_Deleter = typing.Callable[[_Instance], None]
+_Getter = collections.abc.Callable[[_Instance], _T]
+_Setter = collections.abc.Callable[[_Instance, _T], None]
+_Deleter = collections.abc.Callable[[_Instance], None]
 _InstancePropertyState = tuple[
     _Getter[_Instance, _T] | None,
     _Setter[_Instance, _T] | None,
@@ -46,7 +46,9 @@ def identity[T](x: T) -> T:
     """
     ...
 
-def apply[**P, T](func: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
+def apply[**P, T](
+    func: collections.abc.Callable[P, T], *args: P.args, **kwargs: P.kwargs
+) -> T:
     """Applies a function and returns the results
 
     >>> def double(x): return 2*x
@@ -60,7 +62,9 @@ def apply[**P, T](func: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs
     ...
 
 def thread_first[T, R](
-    val: T, *forms: typing.Callable[[T], R] | tuple[typing.Callable[..., R], typing.Any]
+    val: T,
+    *forms: collections.abc.Callable[[T], R]
+    | tuple[collections.abc.Callable[..., R], typing.Any],
 ) -> R:
     """Thread value through a sequence of functions/forms
 
@@ -88,7 +92,8 @@ def thread_first[T, R](
     ...
 
 def thread_last[T, U](
-    val: T, *forms: typing.Callable[[T], U] | tuple[typing.Callable[..., U]]
+    val: T,
+    *forms: collections.abc.Callable[[T], U] | tuple[collections.abc.Callable[..., U]],
 ) -> U:
     """Thread value through a sequence of functions/forms
 
@@ -161,7 +166,9 @@ def instanceproperty(
     fdel: _Deleter[_Instance] | None = ...,
     doc: str | None = ...,
     classval: _T | None = ...,
-) -> typing.Callable[[_Getter[_Instance, _T]], InstanceProperty[_Instance, _T]]: ...
+) -> collections.abc.Callable[
+    [_Getter[_Instance, _T]], InstanceProperty[_Instance, _T]
+]: ...
 def instanceproperty(
     fget: _Getter[_Instance, _T] | None = None,
     fset: _Setter[_Instance, _T] | None = None,
@@ -170,7 +177,9 @@ def instanceproperty(
     classval: _T | None = None,
 ) -> (
     InstanceProperty[_Instance, _T]
-    | typing.Callable[[_Getter[_Instance, _T]], InstanceProperty[_Instance, _T]]
+    | collections.abc.Callable[
+        [_Getter[_Instance, _T]], InstanceProperty[_Instance, _T]
+    ]
 ):
     """Like @property, but returns ``classval`` when used as a class attribute
 
@@ -227,13 +236,13 @@ class curry[**P, T]:
     """
     def __init__(
         self,
-        func: curry[P, T] | functools.partial[T] | typing.Callable[P, T],
+        func: curry[P, T] | functools.partial[T] | collections.abc.Callable[P, T],
         /,  # Must be positional-only
         *args: typing.Any,
         **kwargs: typing.Any,
     ) -> None: ...
     @instanceproperty
-    def func(self) -> typing.Callable[P, T]: ...
+    def func(self) -> collections.abc.Callable[P, T]: ...
     @instanceproperty
     def __signature__(self) -> inspect.Signature: ...
     @instanceproperty
@@ -264,17 +273,17 @@ class curry[**P, T]:
     @typing.override
     def __reduce__(
         self,
-    ) -> tuple[typing.Callable[..., T], _CurryState]: ...
+    ) -> tuple[collections.abc.Callable[..., T], _CurryState]: ...
 
 @curry
 def memoize[T](
-    func: typing.Callable[..., T],
+    func: collections.abc.Callable[..., T],
     cache: dict[typing.Any, T] | None = None,
-    key: typing.Callable[
+    key: collections.abc.Callable[
         [tuple[typing.Any, ...], collections.abc.Mapping[str, typing.Any]], typing.Any
     ]
     | None = None,
-) -> typing.Callable[..., T]:
+) -> collections.abc.Callable[..., T]:
     """Cache a function's result for speedy future evaluation
 
     Considerations:
@@ -313,48 +322,50 @@ def memoize[T](
     ...
 
 @typing.overload
-def compose[**P, T](fn_0: typing.Callable[P, T]) -> typing.Callable[P, T]: ...
+def compose[**P, T](
+    fn_0: collections.abc.Callable[P, T],
+) -> collections.abc.Callable[P, T]: ...
 @typing.overload
 def compose[**P, T0, T1](
-    fn_0: typing.Callable[[T0], T1], fn_1: typing.Callable[P, T0]
-) -> typing.Callable[P, T1]: ...
+    fn_0: collections.abc.Callable[[T0], T1], fn_1: collections.abc.Callable[P, T0]
+) -> collections.abc.Callable[P, T1]: ...
 @typing.overload
 def compose[**P, T0, T1, T2](
-    fn_0: typing.Callable[[T1], T2],
-    fn_1: typing.Callable[[T0], T1],
-    fn_2: typing.Callable[P, T0],
-) -> typing.Callable[P, T2]: ...
+    fn_0: collections.abc.Callable[[T1], T2],
+    fn_1: collections.abc.Callable[[T0], T1],
+    fn_2: collections.abc.Callable[P, T0],
+) -> collections.abc.Callable[P, T2]: ...
 @typing.overload
 def compose[**P, T0, T1, T2, T3](
-    fn_0: typing.Callable[[T2], T3],
-    fn_1: typing.Callable[[T1], T2],
-    fn_2: typing.Callable[[T0], T1],
-    fn_3: typing.Callable[P, T0],
-) -> typing.Callable[P, T3]: ...
+    fn_0: collections.abc.Callable[[T2], T3],
+    fn_1: collections.abc.Callable[[T1], T2],
+    fn_2: collections.abc.Callable[[T0], T1],
+    fn_3: collections.abc.Callable[P, T0],
+) -> collections.abc.Callable[P, T3]: ...
 @typing.overload
 def compose[**P, T0, T1, T2, T3, T4](
-    fn_0: typing.Callable[[T3], T4],
-    fn_1: typing.Callable[[T2], T3],
-    fn_2: typing.Callable[[T1], T2],
-    fn_3: typing.Callable[[T0], T1],
-    fn_4: typing.Callable[P, T0],
-) -> typing.Callable[P, T4]: ...
+    fn_0: collections.abc.Callable[[T3], T4],
+    fn_1: collections.abc.Callable[[T2], T3],
+    fn_2: collections.abc.Callable[[T1], T2],
+    fn_3: collections.abc.Callable[[T0], T1],
+    fn_4: collections.abc.Callable[P, T0],
+) -> collections.abc.Callable[P, T4]: ...
 @typing.overload
 def compose[**P, T0, T1, T2, T3, T4, T5](
-    fn_0: typing.Callable[[T4], T5],
-    fn_1: typing.Callable[[T3], T4],
-    fn_2: typing.Callable[[T2], T3],
-    fn_3: typing.Callable[[T1], T2],
-    fn_4: typing.Callable[[T0], T1],
-    fn_5: typing.Callable[P, T0],
-) -> typing.Callable[P, T5]: ...
+    fn_0: collections.abc.Callable[[T4], T5],
+    fn_1: collections.abc.Callable[[T3], T4],
+    fn_2: collections.abc.Callable[[T2], T3],
+    fn_3: collections.abc.Callable[[T1], T2],
+    fn_4: collections.abc.Callable[[T0], T1],
+    fn_5: collections.abc.Callable[P, T0],
+) -> collections.abc.Callable[P, T5]: ...
 @typing.overload
 def compose(
-    *funcs: typing.Callable[..., typing.Any],
-) -> typing.Callable[..., typing.Any]: ...
+    *funcs: collections.abc.Callable[..., typing.Any],
+) -> collections.abc.Callable[..., typing.Any]: ...
 def compose(
-    *funcs: typing.Callable[..., typing.Any],
-) -> typing.Callable[..., typing.Any]:
+    *funcs: collections.abc.Callable[..., typing.Any],
+) -> collections.abc.Callable[..., typing.Any]:
     """Compose functions to operate in series.
 
     Returns a function that applies other functions in sequence.
@@ -375,48 +386,50 @@ def compose(
     ...
 
 @typing.overload
-def compose_left[**P, T](fn_0: typing.Callable[P, T]) -> typing.Callable[P, T]: ...
+def compose_left[**P, T](
+    fn_0: collections.abc.Callable[P, T],
+) -> collections.abc.Callable[P, T]: ...
 @typing.overload
 def compose_left[**P, T0, T1](
-    fn_0: typing.Callable[P, T0], fn_1: typing.Callable[[T0], T1]
-) -> typing.Callable[P, T1]: ...
+    fn_0: collections.abc.Callable[P, T0], fn_1: collections.abc.Callable[[T0], T1]
+) -> collections.abc.Callable[P, T1]: ...
 @typing.overload
 def compose_left[**P, T0, T1, T2](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[[T0], T1],
-    fn_2: typing.Callable[[T1], T2],
-) -> typing.Callable[P, T2]: ...
+    fn_0: collections.abc.Callable[P, T0],
+    fn_1: collections.abc.Callable[[T0], T1],
+    fn_2: collections.abc.Callable[[T1], T2],
+) -> collections.abc.Callable[P, T2]: ...
 @typing.overload
 def compose_left[**P, T0, T1, T2, T3](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[[T0], T1],
-    fn_2: typing.Callable[[T1], T2],
-    fn_3: typing.Callable[[T2], T3],
-) -> typing.Callable[P, T3]: ...
+    fn_0: collections.abc.Callable[P, T0],
+    fn_1: collections.abc.Callable[[T0], T1],
+    fn_2: collections.abc.Callable[[T1], T2],
+    fn_3: collections.abc.Callable[[T2], T3],
+) -> collections.abc.Callable[P, T3]: ...
 @typing.overload
 def compose_left[**P, T0, T1, T2, T3, T4](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[[T0], T1],
-    fn_2: typing.Callable[[T1], T2],
-    fn_3: typing.Callable[[T2], T3],
-    fn_4: typing.Callable[[T3], T4],
-) -> typing.Callable[P, T4]: ...
+    fn_0: collections.abc.Callable[P, T0],
+    fn_1: collections.abc.Callable[[T0], T1],
+    fn_2: collections.abc.Callable[[T1], T2],
+    fn_3: collections.abc.Callable[[T2], T3],
+    fn_4: collections.abc.Callable[[T3], T4],
+) -> collections.abc.Callable[P, T4]: ...
 @typing.overload
 def compose_left[**P, T0, T1, T2, T3, T4, T5](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[[T0], T1],
-    fn_2: typing.Callable[[T1], T2],
-    fn_3: typing.Callable[[T2], T3],
-    fn_4: typing.Callable[[T3], T4],
-    fn_5: typing.Callable[[T4], T5],
-) -> typing.Callable[P, T5]: ...
+    fn_0: collections.abc.Callable[P, T0],
+    fn_1: collections.abc.Callable[[T0], T1],
+    fn_2: collections.abc.Callable[[T1], T2],
+    fn_3: collections.abc.Callable[[T2], T3],
+    fn_4: collections.abc.Callable[[T3], T4],
+    fn_5: collections.abc.Callable[[T4], T5],
+) -> collections.abc.Callable[P, T5]: ...
 @typing.overload
 def compose_left(
-    *funcs: typing.Callable[..., typing.Any],
-) -> typing.Callable[..., typing.Any]: ...
+    *funcs: collections.abc.Callable[..., typing.Any],
+) -> collections.abc.Callable[..., typing.Any]: ...
 def compose_left(
-    *funcs: typing.Callable[..., typing.Any],
-) -> typing.Callable[..., typing.Any]:
+    *funcs: collections.abc.Callable[..., typing.Any],
+) -> collections.abc.Callable[..., typing.Any]:
     """Compose functions to operate in series.
 
     Returns a function that applies other functions in sequence.
@@ -439,51 +452,55 @@ def compose_left(
 @typing.overload
 def pipe[T0, T1](
     data: T0,
-    fn_0: typing.Callable[[T0], T1],
+    fn_0: collections.abc.Callable[[T0], T1],
 ) -> T1: ...
 @typing.overload
 def pipe[T0, T1, T2](
     data: T0,
-    fn_0: typing.Callable[[T0], T1],
-    fn_1: typing.Callable[[T1], T2],
+    fn_0: collections.abc.Callable[[T0], T1],
+    fn_1: collections.abc.Callable[[T1], T2],
 ) -> T2: ...
 @typing.overload
 def pipe[T0, T1, T2, T3](
     data: T0,
-    fn_0: typing.Callable[[T0], T1],
-    fn_1: typing.Callable[[T1], T2],
-    fn_2: typing.Callable[[T2], T3],
+    fn_0: collections.abc.Callable[[T0], T1],
+    fn_1: collections.abc.Callable[[T1], T2],
+    fn_2: collections.abc.Callable[[T2], T3],
 ) -> T3: ...
 @typing.overload
 def pipe[T0, T1, T2, T3, T4](
     data: T0,
-    fn_0: typing.Callable[[T0], T1],
-    fn_1: typing.Callable[[T1], T2],
-    fn_2: typing.Callable[[T2], T3],
-    fn_3: typing.Callable[[T3], T4],
+    fn_0: collections.abc.Callable[[T0], T1],
+    fn_1: collections.abc.Callable[[T1], T2],
+    fn_2: collections.abc.Callable[[T2], T3],
+    fn_3: collections.abc.Callable[[T3], T4],
 ) -> T4: ...
 @typing.overload
 def pipe[T0, T1, T2, T3, T4, T5](
     data: T0,
-    fn_0: typing.Callable[[T0], T1],
-    fn_1: typing.Callable[[T1], T2],
-    fn_2: typing.Callable[[T2], T3],
-    fn_3: typing.Callable[[T3], T4],
-    fn_4: typing.Callable[[T4], T5],
+    fn_0: collections.abc.Callable[[T0], T1],
+    fn_1: collections.abc.Callable[[T1], T2],
+    fn_2: collections.abc.Callable[[T2], T3],
+    fn_3: collections.abc.Callable[[T3], T4],
+    fn_4: collections.abc.Callable[[T4], T5],
 ) -> T5: ...
 @typing.overload
 def pipe[T0, T1, T2, T3, T4, T5, T6](
     data: T0,
-    fn_0: typing.Callable[[T0], T1],
-    fn_1: typing.Callable[[T1], T2],
-    fn_2: typing.Callable[[T2], T3],
-    fn_3: typing.Callable[[T3], T4],
-    fn_4: typing.Callable[[T4], T5],
-    fn_5: typing.Callable[[T5], T6],
+    fn_0: collections.abc.Callable[[T0], T1],
+    fn_1: collections.abc.Callable[[T1], T2],
+    fn_2: collections.abc.Callable[[T2], T3],
+    fn_3: collections.abc.Callable[[T3], T4],
+    fn_4: collections.abc.Callable[[T4], T5],
+    fn_5: collections.abc.Callable[[T5], T6],
 ) -> T6: ...
 @typing.overload
-def pipe(data: typing.Any, *funcs: typing.Callable[..., typing.Any]) -> typing.Any: ...
-def pipe(data: typing.Any, *funcs: typing.Callable[..., typing.Any]) -> typing.Any:
+def pipe(
+    data: typing.Any, *funcs: collections.abc.Callable[..., typing.Any]
+) -> typing.Any: ...
+def pipe(
+    data: typing.Any, *funcs: collections.abc.Callable[..., typing.Any]
+) -> typing.Any:
     """Pipe a value through a sequence of functions
 
     I.e. ``pipe(data, f, g, h)`` is equivalent to ``h(g(f(data)))``
@@ -505,7 +522,9 @@ def pipe(data: typing.Any, *funcs: typing.Callable[..., typing.Any]) -> typing.A
     """
     ...
 
-def complement[**P](func: typing.Callable[P, bool]) -> typing.Callable[P, bool]:
+def complement[**P](
+    func: collections.abc.Callable[P, bool],
+) -> collections.abc.Callable[P, bool]:
     """Convert a predicate function to its logical complement.
 
     In other words, return a function that, for inputs that normally
@@ -521,57 +540,58 @@ def complement[**P](func: typing.Callable[P, bool]) -> typing.Callable[P, bool]:
     ...
 
 @typing.overload
-def juxt() -> typing.Callable[..., tuple[()]]: ...
+def juxt() -> collections.abc.Callable[..., tuple[()]]: ...
 @typing.overload
 def juxt[**P, T0](
-    fn_0: typing.Callable[P, T0],
-) -> typing.Callable[P, tuple[T0]]: ...
+    fn_0: collections.abc.Callable[P, T0],
+) -> collections.abc.Callable[P, tuple[T0]]: ...
 @typing.overload
 def juxt[**P, T0, T1](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[P, T1],
-) -> typing.Callable[P, tuple[T0, T1]]: ...
+    fn_0: collections.abc.Callable[P, T0],
+    fn_1: collections.abc.Callable[P, T1],
+) -> collections.abc.Callable[P, tuple[T0, T1]]: ...
 @typing.overload
 def juxt[**P, T0, T1, T2](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[P, T1],
-    fn_2: typing.Callable[P, T2],
-) -> typing.Callable[P, tuple[T0, T1, T2]]: ...
+    fn_0: collections.abc.Callable[P, T0],
+    fn_1: collections.abc.Callable[P, T1],
+    fn_2: collections.abc.Callable[P, T2],
+) -> collections.abc.Callable[P, tuple[T0, T1, T2]]: ...
 @typing.overload
 def juxt[**P, T0, T1, T2, T3](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[P, T1],
-    fn_2: typing.Callable[P, T2],
-    fn_3: typing.Callable[P, T3],
-) -> typing.Callable[P, tuple[T0, T1, T2, T3]]: ...
+    fn_0: collections.abc.Callable[P, T0],
+    fn_1: collections.abc.Callable[P, T1],
+    fn_2: collections.abc.Callable[P, T2],
+    fn_3: collections.abc.Callable[P, T3],
+) -> collections.abc.Callable[P, tuple[T0, T1, T2, T3]]: ...
 @typing.overload
 def juxt[**P, T0, T1, T2, T3, T4](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[P, T1],
-    fn_2: typing.Callable[P, T2],
-    fn_3: typing.Callable[P, T3],
-    fn_4: typing.Callable[P, T4],
-) -> typing.Callable[P, tuple[T0, T1, T2, T3, T4]]: ...
+    fn_0: collections.abc.Callable[P, T0],
+    fn_1: collections.abc.Callable[P, T1],
+    fn_2: collections.abc.Callable[P, T2],
+    fn_3: collections.abc.Callable[P, T3],
+    fn_4: collections.abc.Callable[P, T4],
+) -> collections.abc.Callable[P, tuple[T0, T1, T2, T3, T4]]: ...
 @typing.overload
 def juxt[**P, T0, T1, T2, T3, T4, T5](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[P, T1],
-    fn_2: typing.Callable[P, T2],
-    fn_3: typing.Callable[P, T3],
-    fn_4: typing.Callable[P, T4],
-    fn_5: typing.Callable[P, T5],
-) -> typing.Callable[P, tuple[T0, T1, T2, T3, T4, T5]]: ...
+    fn_0: collections.abc.Callable[P, T0],
+    fn_1: collections.abc.Callable[P, T1],
+    fn_2: collections.abc.Callable[P, T2],
+    fn_3: collections.abc.Callable[P, T3],
+    fn_4: collections.abc.Callable[P, T4],
+    fn_5: collections.abc.Callable[P, T5],
+) -> collections.abc.Callable[P, tuple[T0, T1, T2, T3, T4, T5]]: ...
 @typing.overload
 def juxt[**P, T](
-    funcs: collections.abc.Iterable[typing.Callable[P, T]],
-) -> typing.Callable[P, tuple[T, ...]]: ...
+    funcs: collections.abc.Iterable[collections.abc.Callable[P, T]],
+) -> collections.abc.Callable[P, tuple[T, ...]]: ...
 @typing.overload
 def juxt[**P, T](
-    *funcs: typing.Callable[P, T],
-) -> typing.Callable[P, tuple[T, ...]]: ...
+    *funcs: collections.abc.Callable[P, T],
+) -> collections.abc.Callable[P, tuple[T, ...]]: ...
 def juxt[**P, T](
-    *funcs: typing.Callable[P, T] | collections.abc.Iterable[typing.Callable[P, T]],
-) -> typing.Callable[P, tuple[T, ...]]:
+    *funcs: collections.abc.Callable[P, T]
+    | collections.abc.Iterable[collections.abc.Callable[P, T]],
+) -> collections.abc.Callable[P, tuple[T, ...]]:
     """Creates a function that calls several functions with the same arguments
 
     Takes several functions and returns a function that applies its arguments
@@ -589,7 +609,7 @@ def juxt[**P, T](
     """
     ...
 
-def do[T](func: typing.Callable[[T], typing.Any], x: T) -> T:
+def do[T](func: collections.abc.Callable[[T], typing.Any], x: T) -> T:
     """Runs ``func`` on ``x``, returns ``x``
 
     Because the results of ``func`` are not returned, only the side
@@ -614,7 +634,7 @@ def do[T](func: typing.Callable[[T], typing.Any], x: T) -> T:
     ...
 
 @curry
-def flip[T, U, R](func: typing.Callable[[T, U], R], a: U, b: T) -> R:
+def flip[T, U, R](func: collections.abc.Callable[[T, U], R], a: U, b: T) -> R:
     """Call the function call with the arguments flipped
 
     This function is curried.
@@ -671,8 +691,8 @@ class excepts[T, **P]:
     def __init__(
         self,
         exc: type[Exception] | tuple[type[Exception], ...],
-        func: typing.Callable[P, T],
-        handler: typing.Callable[[Exception], T] | None = None,
+        func: collections.abc.Callable[P, T],
+        handler: collections.abc.Callable[[Exception], T] | None = None,
     ) -> None: ...
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T: ...
     @property

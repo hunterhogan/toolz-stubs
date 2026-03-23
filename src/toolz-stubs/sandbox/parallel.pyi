@@ -10,12 +10,12 @@ type _MapFunction[T] = collections.abc.Callable[
 ]
 
 def fold[T](
-    binop: typing.Callable[[T, T], T],
+    binop: collections.abc.Callable[[T, T], T],
     seq: collections.abc.Iterable[T],
     default: typing.Literal["__no__default__"] | T = "__no_default__",
     map: _MapFunction[T] = map,
     chunksize: int = 128,
-    combine: typing.Callable[[T, T], T] | None = None,
+    combine: collections.abc.Callable[[T, T], T] | None = None,
 ) -> T:
     """
     Reduce without guarantee of ordered reduction.
