@@ -423,5 +423,7 @@ class TestGetIn:
     def test_no_default_raises(self) -> None:
         """get_in with no_default=True should raise KeyError."""
 
+        coll: dict[str, int] = {}
+
         with pytest.raises(KeyError):
-            _ = dt.get_in(["y"], {}, no_default=True)
+            _ = dt.get_in(["y"], coll, no_default=True)
