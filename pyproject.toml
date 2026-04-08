@@ -26,7 +26,6 @@ classifiers = [
 ]
 dependencies = [
   "toolz~=1.0",
-  "typing_extensions>=4.10; python_version < '3.13'"
 ]
 dynamic = ["version"]
 
