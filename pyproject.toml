@@ -40,6 +40,7 @@ dev = [
   "cytoolz~=1.0",
   "pytest>=8.4.2",
   "ruff>=0.14.1",
+  "typing_extensions>=4.10; python_version < '3.13'"
 ]
 
 [build-system]
