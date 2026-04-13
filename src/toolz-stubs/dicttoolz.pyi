@@ -54,17 +54,17 @@ def merge[K: collections.abc.Hashable, V](
 
 @typing.overload
 def merge_with[K: collections.abc.Hashable, V](
-    func: collections.abc.Callable[[list[V]], V],
+    func: collections.abc.Callable[[collections.abc.Sequence[V]], V],
     *dicts: collections.abc.Mapping[K, V],
 ) -> dict[K, V]: ...
 @typing.overload
 def merge_with[K: collections.abc.Hashable, V](
-    func: collections.abc.Callable[[list[V]], V],
+    func: collections.abc.Callable[[collections.abc.Sequence[V]], V],
     *dicts: collections.abc.Mapping[K, V],
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]],
 ) -> collections.abc.MutableMapping[K, V]: ...
 def merge_with[K: collections.abc.Hashable, V](
-    func: collections.abc.Callable[[list[V]], V],
+    func: collections.abc.Callable[[collections.abc.Sequence[V]], V],
     *dicts: collections.abc.Mapping[K, V],
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict,
 ) -> collections.abc.MutableMapping[K, V]:
