@@ -1,4 +1,3 @@
-# pyright: reportAny=false
 import collections.abc
 import sys
 import typing
@@ -565,33 +564,47 @@ def update_in[K, V](
     """
     ...
 
+_KT_contra = typing.TypeVar("_KT_contra", contravariant=True)
+_VT_co = typing.TypeVar("_VT_co", covariant=True)
+
+class _SupportsGetItem(typing.Protocol[_KT_contra, _VT_co]):
+    def __getitem__(self, key: _KT_contra, /) -> _VT_co: ...
+
+@typing.overload
+def get_in[K, V](
+    keys: collections.abc.Sequence[K],
+    coll: collections.abc.Sequence[V] | _SupportsGetItem[K, V],
+    default: None = None,
+    *,
+    no_default: typing.Literal[True],
+) -> V: ...
+@typing.overload
+def get_in[K, V](
+    keys: collections.abc.Sequence[K],
+    coll: collections.abc.Sequence[V] | _SupportsGetItem[K, V],
+    default: V,
+    no_default: typing.Literal[True],
+) -> V: ...
 @typing.overload
 def get_in[K, V0, V1](
-    keys: collections.abc.Iterable[K] | K,
-    coll: collections.abc.Iterable[V0] | collections.abc.Mapping[K, V0],
-    default: V0,
-    no_default: bool = ...,
-) -> V0: ...
-@typing.overload
-def get_in[K, V0, V1](
-    keys: collections.abc.Iterable[K] | K,
-    coll: collections.abc.Iterable[V0] | collections.abc.Mapping[K, V0],
-    default: V1 = ...,
-    no_default: bool = ...,
+    keys: collections.abc.Sequence[K],
+    coll: collections.abc.Sequence[V0] | _SupportsGetItem[K, V0],
+    default: V1,
+    no_default: bool = False,
 ) -> V0 | V1: ...
 @typing.overload
 def get_in[K, V](
-    keys: collections.abc.Iterable[K] | K,
-    coll: collections.abc.Iterable[V] | collections.abc.Mapping[K, V],
-    default: typing.Any = ...,
-    no_default: bool = ...,
-) -> typing.Any: ...
-def get_in[K, V](
-    keys: collections.abc.Iterable[K] | K,
-    coll: collections.abc.Iterable[V] | collections.abc.Mapping[K, V],
-    default: typing.Any = None,
+    keys: collections.abc.Sequence[K],
+    coll: collections.abc.Sequence[V] | _SupportsGetItem[K, V],
+    default: None = None,
     no_default: bool = False,
-) -> typing.Any:
+) -> V | None: ...
+def get_in[K, V0, V1](
+    keys: collections.abc.Sequence[K],
+    coll: collections.abc.Sequence[V0] | _SupportsGetItem[K, V0],
+    default: V1 | None = None,
+    no_default: bool = False,
+) -> V0 | V1 | None:
     """Returns coll[i0][i1]...[iX] where [i0, i1, ..., iX]==keys.
 
     If coll[i0][i1]...[iX] cannot be found, returns ``default``, unless
