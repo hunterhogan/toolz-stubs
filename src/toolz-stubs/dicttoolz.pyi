@@ -25,13 +25,15 @@ __all__ = (
 )
 
 @typing.overload
-def merge[K, V](*dicts: collections.abc.Mapping[K, V]) -> dict[K, V]: ...
+def merge[K: collections.abc.Hashable, V](
+    *dicts: collections.abc.Mapping[K, V],
+) -> dict[K, V]: ...
 @typing.overload
-def merge[K, V](
+def merge[K: collections.abc.Hashable, V](
     *dicts: collections.abc.Mapping[K, V],
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]],
 ) -> collections.abc.MutableMapping[K, V]: ...
-def merge[K, V](
+def merge[K: collections.abc.Hashable, V](
     *dicts: collections.abc.Mapping[K, V],
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict,
 ) -> collections.abc.MutableMapping[K, V]:
@@ -51,17 +53,17 @@ def merge[K, V](
     ...
 
 @typing.overload
-def merge_with[K, V](
+def merge_with[K: collections.abc.Hashable, V](
     func: collections.abc.Callable[[list[V]], V],
     *dicts: collections.abc.Mapping[K, V],
 ) -> dict[K, V]: ...
 @typing.overload
-def merge_with[K, V](
+def merge_with[K: collections.abc.Hashable, V](
     func: collections.abc.Callable[[list[V]], V],
     *dicts: collections.abc.Mapping[K, V],
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]],
 ) -> collections.abc.MutableMapping[K, V]: ...
-def merge_with[K, V](
+def merge_with[K: collections.abc.Hashable, V](
     func: collections.abc.Callable[[list[V]], V],
     *dicts: collections.abc.Mapping[K, V],
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict,
@@ -83,18 +85,18 @@ def merge_with[K, V](
     ...
 
 @typing.overload
-def valmap[K, V0, V1](
+def valmap[K: collections.abc.Hashable, V0, V1](
     func: collections.abc.Callable[[V0], V1],
     d: collections.abc.Mapping[K, V0],
 ) -> dict[K, V1]: ...
 @typing.overload
-def valmap[K, V0, V1](
+def valmap[K: collections.abc.Hashable, V0, V1](
     func: collections.abc.Callable[[V0], V1],
     d: collections.abc.Mapping[K, V0],
     *,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V1]],
 ) -> collections.abc.MutableMapping[K, V1]: ...
-def valmap[K, V0, V1](
+def valmap[K: collections.abc.Hashable, V0, V1](
     func: collections.abc.Callable[[V0], V1],
     d: collections.abc.Mapping[K, V0],
     *,
@@ -113,18 +115,18 @@ def valmap[K, V0, V1](
     ...
 
 @typing.overload
-def keymap[K0, K1, V](
+def keymap[K0: collections.abc.Hashable, K1: collections.abc.Hashable, V](
     func: collections.abc.Callable[[K0], K1],
     d: collections.abc.Mapping[K0, V],
 ) -> dict[K1, V]: ...
 @typing.overload
-def keymap[K0, K1, V](
+def keymap[K0: collections.abc.Hashable, K1: collections.abc.Hashable, V](
     func: collections.abc.Callable[[K0], K1],
     d: collections.abc.Mapping[K0, V],
     *,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K1, V]],
 ) -> collections.abc.MutableMapping[K1, V]: ...
-def keymap[K0, K1, V](
+def keymap[K0: collections.abc.Hashable, K1: collections.abc.Hashable, V](
     func: collections.abc.Callable[[K0], K1],
     d: collections.abc.Mapping[K0, V],
     *,
@@ -143,18 +145,18 @@ def keymap[K0, K1, V](
     ...
 
 @typing.overload
-def itemmap[K0, V0, K1, V1](
+def itemmap[K0: collections.abc.Hashable, V0, K1: collections.abc.Hashable, V1](
     func: collections.abc.Callable[[tuple[K0, V0]], tuple[K1, V1]],
     d: collections.abc.Mapping[K0, V0],
 ) -> dict[K1, V1]: ...
 @typing.overload
-def itemmap[K0, V0, K1, V1](
+def itemmap[K0: collections.abc.Hashable, V0, K1: collections.abc.Hashable, V1](
     func: collections.abc.Callable[[tuple[K0, V0]], tuple[K1, V1]],
     d: collections.abc.Mapping[K0, V0],
     *,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K1, V1]],
 ) -> collections.abc.MutableMapping[K1, V1]: ...
-def itemmap[K0, V0, K1, V1](
+def itemmap[K0: collections.abc.Hashable, V0, K1: collections.abc.Hashable, V1](
     func: collections.abc.Callable[[tuple[K0, V0]], tuple[K1, V1]],
     d: collections.abc.Mapping[K0, V0],
     *,
@@ -175,42 +177,42 @@ def itemmap[K0, V0, K1, V1](
     ...
 
 @typing.overload
-def valfilter[K, V0, V1](
+def valfilter[K: collections.abc.Hashable, V0, V1](
     predicate: collections.abc.Callable[[V0], TypeIs[V1]],
     d: collections.abc.Mapping[K, V0],
 ) -> dict[K, V1]: ...
 @typing.overload
-def valfilter[K, V0, V1](
+def valfilter[K: collections.abc.Hashable, V0, V1](
     predicate: collections.abc.Callable[[V0], typing.TypeGuard[V1]],
     d: collections.abc.Mapping[K, V0],
 ) -> dict[K, V1]: ...
 @typing.overload
-def valfilter[K, V](
+def valfilter[K: collections.abc.Hashable, V](
     predicate: collections.abc.Callable[[V], bool],
     d: collections.abc.Mapping[K, V],
 ) -> dict[K, V]: ...
 @typing.overload
-def valfilter[K, V0, V1](
+def valfilter[K: collections.abc.Hashable, V0, V1](
     predicate: collections.abc.Callable[[V0], TypeIs[V1]],
     d: collections.abc.Mapping[K, V0],
     *,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V1]],
 ) -> collections.abc.MutableMapping[K, V1]: ...
 @typing.overload
-def valfilter[K, V0, V1](
+def valfilter[K: collections.abc.Hashable, V0, V1](
     predicate: collections.abc.Callable[[V0], typing.TypeGuard[V1]],
     d: collections.abc.Mapping[K, V0],
     *,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V1]],
 ) -> collections.abc.MutableMapping[K, V1]: ...
 @typing.overload
-def valfilter[K, V](
+def valfilter[K: collections.abc.Hashable, V](
     predicate: collections.abc.Callable[[V], bool],
     d: collections.abc.Mapping[K, V],
     *,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]],
 ) -> collections.abc.MutableMapping[K, V]: ...
-def valfilter[K, V0, V1](
+def valfilter[K: collections.abc.Hashable, V0, V1](
     predicate: collections.abc.Callable[[V0], bool]
     | collections.abc.Callable[[V0], typing.TypeGuard[V1]],
     d: collections.abc.Mapping[K, V0],
@@ -232,42 +234,42 @@ def valfilter[K, V0, V1](
     ...
 
 @typing.overload
-def keyfilter[K0, K1, V](
+def keyfilter[K0: collections.abc.Hashable, K1: collections.abc.Hashable, V](
     predicate: collections.abc.Callable[[K0], TypeIs[K1]],
     d: collections.abc.Mapping[K0, V],
 ) -> dict[K1, V]: ...
 @typing.overload
-def keyfilter[K0, K1, V](
+def keyfilter[K0: collections.abc.Hashable, K1: collections.abc.Hashable, V](
     predicate: collections.abc.Callable[[K0], typing.TypeGuard[K1]],
     d: collections.abc.Mapping[K0, V],
 ) -> dict[K1, V]: ...
 @typing.overload
-def keyfilter[K, V](
+def keyfilter[K: collections.abc.Hashable, V](
     predicate: collections.abc.Callable[[K], bool],
     d: collections.abc.Mapping[K, V],
 ) -> dict[K, V]: ...
 @typing.overload
-def keyfilter[K0, K1, V](
+def keyfilter[K0: collections.abc.Hashable, K1: collections.abc.Hashable, V](
     predicate: collections.abc.Callable[[K0], TypeIs[K1]],
     d: collections.abc.Mapping[K0, V],
     *,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K1, V]],
 ) -> collections.abc.MutableMapping[K1, V]: ...
 @typing.overload
-def keyfilter[K0, K1, V](
+def keyfilter[K0: collections.abc.Hashable, K1: collections.abc.Hashable, V](
     predicate: collections.abc.Callable[[K0], typing.TypeGuard[K1]],
     d: collections.abc.Mapping[K0, V],
     *,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K1, V]],
 ) -> collections.abc.MutableMapping[K1, V]: ...
 @typing.overload
-def keyfilter[K, V](
+def keyfilter[K: collections.abc.Hashable, V](
     predicate: collections.abc.Callable[[K], bool],
     d: collections.abc.Mapping[K, V],
     *,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]],
 ) -> collections.abc.MutableMapping[K, V]: ...
-def keyfilter[K0, K1, V](
+def keyfilter[K0: collections.abc.Hashable, K1: collections.abc.Hashable, V](
     predicate: collections.abc.Callable[[K0], bool]
     | collections.abc.Callable[[K0], typing.TypeGuard[K1]],
     d: collections.abc.Mapping[K0, V],
@@ -289,31 +291,31 @@ def keyfilter[K0, K1, V](
     ...
 
 @typing.overload
-def itemfilter[K0, K1, V0, V1](
+def itemfilter[K0: collections.abc.Hashable, V0, K1: collections.abc.Hashable, V1](
     predicate: collections.abc.Callable[[tuple[K0, V0]], TypeIs[tuple[K1, V1]]],
     d: collections.abc.Mapping[K0, V0],
 ) -> dict[K1, V1]: ...
 @typing.overload
-def itemfilter[K0, K1, V0, V1](
+def itemfilter[K0: collections.abc.Hashable, V0, K1: collections.abc.Hashable, V1](
     predicate: collections.abc.Callable[
         [tuple[K0, V0]], typing.TypeGuard[tuple[K1, V1]]
     ],
     d: collections.abc.Mapping[K0, V0],
 ) -> dict[K1, V1]: ...
 @typing.overload
-def itemfilter[K, V](
+def itemfilter[K: collections.abc.Hashable, V](
     predicate: collections.abc.Callable[[tuple[K, V]], bool],
     d: collections.abc.Mapping[K, V],
 ) -> dict[K, V]: ...
 @typing.overload
-def itemfilter[K0, K1, V0, V1](
+def itemfilter[K0: collections.abc.Hashable, V0, K1: collections.abc.Hashable, V1](
     predicate: collections.abc.Callable[[tuple[K0, V0]], TypeIs[tuple[K1, V1]]],
     d: collections.abc.Mapping[K0, V0],
     *,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K1, V1]],
 ) -> collections.abc.MutableMapping[K1, V1]: ...
 @typing.overload
-def itemfilter[K0, K1, V0, V1](
+def itemfilter[K0: collections.abc.Hashable, V0, K1: collections.abc.Hashable, V1](
     predicate: collections.abc.Callable[
         [tuple[K0, V0]], typing.TypeGuard[tuple[K1, V1]]
     ],
@@ -322,13 +324,13 @@ def itemfilter[K0, K1, V0, V1](
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K1, V1]],
 ) -> collections.abc.MutableMapping[K1, V1]: ...
 @typing.overload
-def itemfilter[K, V](
+def itemfilter[K: collections.abc.Hashable, V](
     predicate: collections.abc.Callable[[tuple[K, V]], bool],
     d: collections.abc.Mapping[K, V],
     *,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]],
 ) -> collections.abc.MutableMapping[K, V]: ...
-def itemfilter[K0, K1, V0, V1](
+def itemfilter[K0: collections.abc.Hashable, V0, K1: collections.abc.Hashable, V1](
     predicate: collections.abc.Callable[[tuple[K0, V0]], bool]
     | collections.abc.Callable[[tuple[K0, V0]], typing.TypeGuard[tuple[K1, V1]]],
     d: collections.abc.Mapping[K0, V0],
@@ -355,20 +357,20 @@ def itemfilter[K0, K1, V0, V1](
     ...
 
 @typing.overload
-def assoc[K, V](
+def assoc[K: collections.abc.Hashable, V](
     d: collections.abc.Mapping[K, V],
     key: K,
     value: V,
 ) -> dict[K, V]: ...
 @typing.overload
-def assoc[K, V](
+def assoc[K: collections.abc.Hashable, V](
     d: collections.abc.Mapping[K, V],
     key: K,
     value: V,
     *,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]],
 ) -> collections.abc.MutableMapping[K, V]: ...
-def assoc[K, V](
+def assoc[K: collections.abc.Hashable, V](
     d: collections.abc.Mapping[K, V],
     key: K,
     value: V,
@@ -387,17 +389,17 @@ def assoc[K, V](
     ...
 
 @typing.overload
-def dissoc[K, V](
+def dissoc[K: collections.abc.Hashable, V](
     d: collections.abc.Mapping[K, V],
     *keys: K,
 ) -> dict[K, V]: ...
 @typing.overload
-def dissoc[K, V](
+def dissoc[K: collections.abc.Hashable, V](
     d: collections.abc.Mapping[K, V],
     *keys: K,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]],
 ) -> collections.abc.MutableMapping[K, V]: ...
-def dissoc[K, V](
+def dissoc[K: collections.abc.Hashable, V](
     d: collections.abc.Mapping[K, V],
     *keys: K,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict,
