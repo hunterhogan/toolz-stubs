@@ -138,7 +138,11 @@ class TestKeyfilter:
 
     def test_string_values(self) -> None:
         """keyfilter with string values (README example)."""
-        result = dt.keyfilter(lambda k: k % 2 == 0, {1: "a", 2: "b", 3: "c"})
+
+        def iseven(x: int) -> bool:
+            return x % 2 == 0
+
+        result = dt.keyfilter(iseven, {1: "a", 2: "b", 3: "c"})
 
         _ = assert_type(result, dict[int, str])
         assert result == {2: "b"}
