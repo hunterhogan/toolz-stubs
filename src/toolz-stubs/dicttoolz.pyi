@@ -191,6 +191,7 @@ def valfilter[K: collections.abc.Hashable, V0, V1](
 def valfilter[K: collections.abc.Hashable, V](
     predicate: collections.abc.Callable[[V], bool],
     d: collections.abc.Mapping[K, V],
+    factory: collections.abc.Callable[..., dict[K, V]] = dict,
 ) -> dict[K, V]: ...
 @typing.overload
 def valfilter[K: collections.abc.Hashable, V0, V1](
