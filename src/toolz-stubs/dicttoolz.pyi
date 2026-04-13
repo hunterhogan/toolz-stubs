@@ -214,7 +214,8 @@ def valfilter[K: collections.abc.Hashable, V0, V1](
 ) -> collections.abc.MutableMapping[K, V1]: ...
 def valfilter[K: collections.abc.Hashable, V0, V1](
     predicate: collections.abc.Callable[[V0], bool]
-    | collections.abc.Callable[[V0], typing.TypeGuard[V1]],
+    | collections.abc.Callable[[V0], typing.TypeGuard[V1]]
+    | collections.abc.Callable[[V0], TypeIs[V1]],
     d: collections.abc.Mapping[K, V0],
     *,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V1]] = dict,
@@ -271,7 +272,8 @@ def keyfilter[K0: collections.abc.Hashable, K1: collections.abc.Hashable, V](
 ) -> collections.abc.MutableMapping[K1, V]: ...
 def keyfilter[K0: collections.abc.Hashable, K1: collections.abc.Hashable, V](
     predicate: collections.abc.Callable[[K0], bool]
-    | collections.abc.Callable[[K0], typing.TypeGuard[K1]],
+    | collections.abc.Callable[[K0], typing.TypeGuard[K1]]
+    | collections.abc.Callable[[K0], TypeIs[K1]],
     d: collections.abc.Mapping[K0, V],
     *,
     factory: collections.abc.Callable[[], collections.abc.MutableMapping[K1, V]] = dict,
@@ -332,7 +334,8 @@ def itemfilter[K0: collections.abc.Hashable, V0, K1: collections.abc.Hashable, V
 ) -> collections.abc.MutableMapping[K1, V1]: ...
 def itemfilter[K0: collections.abc.Hashable, V0, K1: collections.abc.Hashable, V1](
     predicate: collections.abc.Callable[[tuple[K0, V0]], bool]
-    | collections.abc.Callable[[tuple[K0, V0]], typing.TypeGuard[tuple[K1, V1]]],
+    | collections.abc.Callable[[tuple[K0, V0]], typing.TypeGuard[tuple[K1, V1]]]
+    | collections.abc.Callable[[tuple[K0, V0]], TypeIs[tuple[K1, V1]]],
     d: collections.abc.Mapping[K0, V0],
     *,
     factory: collections.abc.Callable[
